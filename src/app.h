@@ -69,6 +69,6 @@ struct App {
     if (map.w < GetScreenWidth()) return 0;
     if (player.pos.x < 200) return 0;
 
-    return player.pos.x - 200;
+    return min(player.pos.x - 200, map.w - GetScreenWidth());
   }
 };
