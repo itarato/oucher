@@ -4,6 +4,8 @@
 #include "raylib.h"
 #include "util.h"
 
+#define APP_SCROLL_START_PADDING 200
+
 using namespace std;
 
 struct App {
@@ -55,9 +57,7 @@ struct App {
   }
 
   void draw() {
-    for (auto& line : map.lines) {
-      line.draw(xOffset());
-    }
+    for (auto& line : map.lines) line.draw(xOffset());
 
     player.draw(xOffset());
 
@@ -65,10 +65,10 @@ struct App {
   }
 
   int xOffset() const {
-    // FIXME: Hardcoded.
     if (map.w < GetScreenWidth()) return 0;
-    if (player.pos.x < 200) return 0;
+    if (player.pos.x < APP_SCROLL_START_PADDING) return 0;
 
-    return min((int)player.pos.x - 200, map.w - GetScreenWidth());
+    return min((int)player.pos.x - APP_SCROLL_START_PADDING,
+               map.w - GetScreenWidth());
   }
 };
