@@ -7,8 +7,8 @@
 using namespace std;
 
 struct App {
-  Map map{0,
-          2048,
+  Map map{2048,
+          512,
           {
               // Lines:
               {{0, 100}, {500, 300}},
@@ -47,9 +47,6 @@ struct App {
 
     auto dy = deltaYPointToLineList(player.pos, map.lines);
     if (dy != INFINITY) {
-      DrawLine(player.pos.x, player.pos.y, player.pos.x, player.pos.y + dy,
-               RED);
-
       if (dy < 0.0 && dy > PLAYER_LIFT_FROM_BELOW_TRESHOLD) {
         player.pos.y += dy;
         player.v.y = 0.0f;
@@ -62,14 +59,16 @@ struct App {
       line.draw(xOffset());
     }
 
-    DrawCircle(GetMouseX(), GetMouseY(), 5.0f, GREEN);
-
-    player.draw();
+    player.draw(xOffset());
 
     DrawFPS(4, 4);
   }
 
   int xOffset() const {
-    return 0;
+    // FIXME: Hardcoded.
+    if (map.w < GetScreenWidth()) return 0;
+    if (player.pos.x < 200) return 0;
+
+    return player.pos.x - 200;
   }
 };

@@ -22,8 +22,11 @@ struct Line {
   inline float maxY() const { return max(a.y, b.y); }
 
   void draw(int xOffset) {
-    // TODO: filter out off-screen lines.
-    DrawRectangle(minX() - xOffset, maxY(), maxX() - xOffset, GetScreenHeight() - maxY(), LIGHTGRAY);
+    if (maxX() < xOffset) return;
+    if (minX() - xOffset > GetScreenWidth()) return;
+
+    DrawRectangle(minX() - xOffset, maxY(), maxX() - minX(),
+                  GetScreenHeight() - maxY(), LIGHTGRAY);
 
     Vector2 c;
     if (a.y < b.y) {
@@ -32,7 +35,7 @@ struct Line {
       c = Vector2{b.x, a.y};
     }
 
-    DrawTriangle(dx(a, -xOffset), c, b, LIGHTGRAY);
+    DrawTriangle(dx(a, -xOffset), dx(c, -xOffset), dx(b, -xOffset), LIGHTGRAY);
   }
 };
 
@@ -42,8 +45,7 @@ struct Map {
 
   vector<Line> lines{};
 
-  Map(int w, int h, vector<Line> lines)
-      : w(w), h(h), lines(lines) {}
+  Map(int w, int h, vector<Line> lines) : w(w), h(h), lines(lines) {}
 };
 
 float deltaYPointToLine(Vector2 p, Vector2 l1, Vector2 l2) {
