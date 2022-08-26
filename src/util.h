@@ -8,47 +8,43 @@
 
 using namespace std;
 
-struct Point {
-  float x{};
-  float y{};
-
-  Vector2 v2() const { return Vector2{x, y}; }
-
-  static Point fromMouse() {
-    return Point{(float)GetMouseX(), (float)GetMouseY()};
-  }
-};
-
-struct Triangle {
-  Point a{};
-  Point b{};
-  Point c{};
-};
-
 struct Line {
-  Point a{};
-  Point b{};
+  Vector2 a{};
+  Vector2 b{};
 
   inline float minX() const { return min(a.x, b.x); }
   inline float maxX() const { return max(a.x, b.x); }
   inline float minY() const { return min(a.y, b.y); }
   inline float maxY() const { return max(a.y, b.y); }
+
+  void draw() {
+    DrawRectangle(minX(), maxY(), maxX(), GetScreenHeight() - maxY(), LIGHTGRAY);
+
+    Vector2 c;
+    if (a.y < b.y) {
+      c = Vector2{a.x, b.y};
+    } else {
+      c = Vector2{b.x, a.y};
+    }
+
+    DrawTriangle(a, c, b, LIGHTGRAY);
+  }
 };
 
 struct Map {
   int w{};
   int h{};
 
-  vector<Triangle> triangles{};
+  vector<Line> lines{};
 
-  Map(int w, int h, vector<Triangle> triangles)
-      : w(w), h(h), triangles(triangles) {}
+  Map(int w, int h, vector<Line> lines)
+      : w(w), h(h), lines(lines) {}
 };
 
 namespace Util {
 
-float deltaYPointToLine(Point p, Point l1, Point l2) {
-  Point left, right;
+float deltaYPointToLine(Vector2 p, Vector2 l1, Vector2 l2) {
+  Vector2 left, right;
 
   if (l1.x < l2.x) {
     left = l1;
@@ -74,25 +70,11 @@ float deltaYPointToLine(Point p, Point l1, Point l2) {
   return lineY - p.y;
 }
 
-float deltaYPointToTriangle(Point p, Triangle& triangle) {
+float deltaYPointToLineList(Vector2 p, vector<Line>& lines) {
   float dy = INFINITY;
 
-  auto dy1 = Util::deltaYPointToLine(p, triangle.a, triangle.b);
-  auto dy2 = Util::deltaYPointToLine(p, triangle.b, triangle.c);
-  auto dy3 = Util::deltaYPointToLine(p, triangle.a, triangle.c);
-
-  if (dy1 < dy) dy = dy1;
-  if (dy2 < dy) dy = dy2;
-  if (dy3 < dy) dy = dy3;
-
-  return dy;
-}
-
-float deltaYPointToTriangleList(Point p, vector<Triangle>& triangles) {
-  float dy = INFINITY;
-
-  for (auto& triangle : triangles) {
-    float currentDY = deltaYPointToTriangle(p, triangle);
+  for (auto& line : lines) {
+    float currentDY = deltaYPointToLine(p, line.a, line.b);
     if (dy > currentDY) dy = currentDY;
   }
 

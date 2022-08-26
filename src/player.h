@@ -18,8 +18,8 @@ using namespace std;
 
 namespace Physics {
 struct Object {
-  Point pos{};
-  Point v{};
+  Vector2 pos{};
+  Vector2 v{};
 
   void update() {
     pos.y += v.y;

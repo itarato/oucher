@@ -10,9 +10,9 @@ struct App {
   Map map{0,
           1024,
           {
-              // Triangles:
-              {{0, 100}, {200, 500}, {500, 200}},
-              {{500, 200}, {900, 300}, {1024, 100}},
+              // Lines:
+              {{0, 100}, {500, 300}},
+              {{500, 300}, {1024, 200}},
           }};
   Player player{};
   int offset{0};
@@ -43,7 +43,7 @@ struct App {
   void update() {
     player.update();
 
-    auto dy = Util::deltaYPointToTriangleList(player.pos, map.triangles);
+    auto dy = Util::deltaYPointToLineList(player.pos, map.lines);
     if (dy != INFINITY) {
       DrawLine(player.pos.x, player.pos.y, player.pos.x, player.pos.y + dy,
                RED);
@@ -56,9 +56,8 @@ struct App {
   }
 
   void draw() {
-    for (auto& triangle : map.triangles) {
-      DrawTriangleLines(triangle.a.v2(), triangle.b.v2(), triangle.c.v2(),
-                        BLACK);
+    for (auto& line : map.lines) {
+      line.draw();
     }
 
     DrawCircle(GetMouseX(), GetMouseY(), 5.0f, GREEN);
