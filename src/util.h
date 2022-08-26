@@ -8,6 +8,10 @@
 
 using namespace std;
 
+inline Vector2 dx(Vector2 v, float offset) {
+  return Vector2{v.x + offset, v.y};
+}
+
 struct Line {
   Vector2 a{};
   Vector2 b{};
@@ -17,8 +21,9 @@ struct Line {
   inline float minY() const { return min(a.y, b.y); }
   inline float maxY() const { return max(a.y, b.y); }
 
-  void draw() {
-    DrawRectangle(minX(), maxY(), maxX(), GetScreenHeight() - maxY(), LIGHTGRAY);
+  void draw(int xOffset) {
+    // TODO: filter out off-screen lines.
+    DrawRectangle(minX() - xOffset, maxY(), maxX() - xOffset, GetScreenHeight() - maxY(), LIGHTGRAY);
 
     Vector2 c;
     if (a.y < b.y) {
@@ -27,7 +32,7 @@ struct Line {
       c = Vector2{b.x, a.y};
     }
 
-    DrawTriangle(a, c, b, LIGHTGRAY);
+    DrawTriangle(dx(a, -xOffset), c, b, LIGHTGRAY);
   }
 };
 
@@ -40,8 +45,6 @@ struct Map {
   Map(int w, int h, vector<Line> lines)
       : w(w), h(h), lines(lines) {}
 };
-
-namespace Util {
 
 float deltaYPointToLine(Vector2 p, Vector2 l1, Vector2 l2) {
   Vector2 left, right;
@@ -80,5 +83,3 @@ float deltaYPointToLineList(Vector2 p, vector<Line>& lines) {
 
   return dy;
 }
-
-};  // namespace Util

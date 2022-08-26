@@ -8,11 +8,13 @@ using namespace std;
 
 struct App {
   Map map{0,
-          1024,
+          2048,
           {
               // Lines:
               {{0, 100}, {500, 300}},
               {{500, 300}, {1024, 200}},
+              {{1024, 200}, {1500, 500}},
+              {{1500, 500}, {2048, 400}},
           }};
   Player player{};
   int offset{0};
@@ -43,7 +45,7 @@ struct App {
   void update() {
     player.update();
 
-    auto dy = Util::deltaYPointToLineList(player.pos, map.lines);
+    auto dy = deltaYPointToLineList(player.pos, map.lines);
     if (dy != INFINITY) {
       DrawLine(player.pos.x, player.pos.y, player.pos.x, player.pos.y + dy,
                RED);
@@ -57,7 +59,7 @@ struct App {
 
   void draw() {
     for (auto& line : map.lines) {
-      line.draw();
+      line.draw(xOffset());
     }
 
     DrawCircle(GetMouseX(), GetMouseY(), 5.0f, GREEN);
@@ -65,5 +67,9 @@ struct App {
     player.draw();
 
     DrawFPS(4, 4);
+  }
+
+  int xOffset() const {
+    return 0;
   }
 };
