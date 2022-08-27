@@ -3,6 +3,7 @@
 #include "map.h"
 #include "player.h"
 #include "raylib.h"
+#include "text.h"
 #include "util.h"
 
 #define APP_SCROLL_START_PADDING 200
@@ -96,8 +97,9 @@ struct App {
   }
 
   void draw_menu() {
-    DrawText(TextFormat("Stage [%d] - Press [Enter]", stage), 10, 10, 10,
-             DARKGRAY);
+    Text::build(TextFormat("Stage [%d] - Press [Enter]", stage))
+        .toCenter()
+        .draw();
   }
 
   void draw_game() {
