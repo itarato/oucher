@@ -45,11 +45,22 @@ struct Line {
 
 struct Map {
   int w{};
-  int h{};
-
   vector<Line> lines{};
 
-  Map(int w, int h, vector<Line> lines) : w(w), h(h), lines(lines) {}
+  Map(int w, vector<Line> lines) : w(w), lines(lines) {}
+
+  Map(vector<Vector2> anchors) {
+    Vector2 current = anchors[0];
+
+    for (int i = 1; i < (int)anchors.size(); i++) {
+      Vector2 next = anchors[i];
+
+      lines.emplace_back(current, next);
+
+      current = next;
+      w = current.x;
+    }
+  }
 };
 
 float deltaYPointToLine(Vector2 p, Vector2 l1, Vector2 l2) {

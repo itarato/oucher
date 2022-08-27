@@ -5,6 +5,12 @@
 
 using namespace std;
 
+enum class ObstacleType {
+  Small,
+  Medium,
+  Tall,
+};
+
 struct Obstacle {
   Rectangle frame;
 
