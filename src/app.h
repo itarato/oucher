@@ -1,5 +1,6 @@
 #pragma once
 
+#include "map.h"
 #include "obstacle.h"
 #include "player.h"
 #include "raylib.h"
@@ -9,7 +10,14 @@
 
 using namespace std;
 
+enum class AppState {
+  Ready,
+  Running,
+};
+
 struct App {
+  int stage{};
+
   Map map{
       {{0, 100}, {500, 300}, {1024, 200}, {1500, 500}, {2048, 400}},
   };
@@ -22,6 +30,8 @@ struct App {
 
   int offset{0};
 
+  AppState state{AppState::Ready};
+
   App() = default;
 
   ~App() { ShowCursor(); }
@@ -30,7 +40,13 @@ struct App {
     InitWindow(1024, 512, "Oucher");
     SetTargetFPS(60);
     HideCursor();
+
+    stage = 0;
+
+    restart();
   }
+
+  void restart() {}
 
   void loop() {
     while (!WindowShouldClose()) {
@@ -48,7 +64,7 @@ struct App {
   void update() {
     player.update();
 
-    auto dy = deltaYPointToLineList(player.pos, map.lines);
+    auto dy = map.deltaYPointToSurface(player.pos);
     if (dy != INFINITY) {
       if (dy < 0.0 && dy > PLAYER_LIFT_FROM_BELOW_TRESHOLD) {
         player.pos.y += dy;
@@ -63,7 +79,7 @@ struct App {
 
     player.draw(xOffset());
 
-    DrawFPS(4, 4);
+    // DrawFPS(4, 4);
   }
 
   int xOffset() const {
