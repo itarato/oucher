@@ -85,4 +85,12 @@ struct Player : Physics::Object {
   void draw(int xOffset) {
     DrawCircle(pos.x - xOffset, pos.y, 6.0f, DARKPURPLE);
   }
+
+  int width() const { return 40; }
+
+  void reset() {
+    pos.x = 0;
+    pos.y = 0;
+    v.y = 0;
+  }
 };

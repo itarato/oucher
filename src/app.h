@@ -81,6 +81,10 @@ struct App {
         player.v.y = 0.0f;
       }
     }
+
+    if (player.pos.x >= maps[stage].w - player.width()) {
+      handle_win();
+    }
   }
 
   void draw() {
@@ -101,6 +105,13 @@ struct App {
     player.draw(xOffset());
 
     // DrawFPS(4, 4);
+  }
+
+  void handle_win() {
+    state = AppState::Ready;
+    stage = (stage + 1) % maps.size();
+
+    player.reset();
   }
 
   int xOffset() const {
