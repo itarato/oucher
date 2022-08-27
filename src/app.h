@@ -1,7 +1,6 @@
 #pragma once
 
 #include "map.h"
-#include "obstacle.h"
 #include "player.h"
 #include "raylib.h"
 #include "util.h"
@@ -18,15 +17,16 @@ enum class AppState {
 struct App {
   int stage{};
 
-  Map map{
-      {{0, 100}, {500, 300}, {1024, 200}, {1500, 500}, {2048, 400}},
+  vector<Map> maps{
+      {
+          {{0, 400}, {1024, 400}},
+      },
+      {
+          {{0, 100}, {500, 300}, {1024, 200}, {1500, 500}, {2048, 400}},
+      },
   };
 
   Player player{};
-
-  vector<Obstacle> obstacles{
-      Obstacle({400, 300, 60, 80}),
-  };
 
   int offset{0};
 
@@ -37,7 +37,7 @@ struct App {
   ~App() { ShowCursor(); }
 
   void init() {
-    InitWindow(1024, 512, "Oucher");
+    InitWindow(1024, 512, "Oucher V0.1 pre-alpha dev build");
     SetTargetFPS(60);
     HideCursor();
 
@@ -62,9 +62,19 @@ struct App {
   }
 
   void update() {
+    if (state == AppState::Running) {
+      update_game();
+    } else if (state == AppState::Ready) {
+      if (IsKeyPressed(KEY_ENTER)) {
+        state = AppState::Running;
+      }
+    }
+  }
+
+  void update_game() {
     player.update();
 
-    auto dy = map.deltaYPointToSurface(player.pos);
+    auto dy = maps[stage].deltaYPointToSurface(player.pos);
     if (dy != INFINITY) {
       if (dy < 0.0 && dy > PLAYER_LIFT_FROM_BELOW_TRESHOLD) {
         player.pos.y += dy;
@@ -74,19 +84,30 @@ struct App {
   }
 
   void draw() {
-    for (auto& line : map.lines) line.draw(xOffset());
-    for (auto& obstacle : obstacles) obstacle.draw(xOffset());
+    if (state == AppState::Running) {
+      draw_game();
+    } else if (state == AppState::Ready) {
+      draw_menu();
+    }
+  }
 
+  void draw_menu() {
+    DrawText(TextFormat("Stage [%d] - Press [Enter]", stage), 10, 10, 10,
+             DARKGRAY);
+  }
+
+  void draw_game() {
+    maps[stage].draw(xOffset());
     player.draw(xOffset());
 
     // DrawFPS(4, 4);
   }
 
   int xOffset() const {
-    if (map.w < GetScreenWidth()) return 0;
+    if (maps[stage].w < GetScreenWidth()) return 0;
     if (player.pos.x < APP_SCROLL_START_PADDING) return 0;
 
     return min((int)player.pos.x - APP_SCROLL_START_PADDING,
-               map.w - GetScreenWidth());
+               maps[stage].w - GetScreenWidth());
   }
 };

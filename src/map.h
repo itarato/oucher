@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "line.h"
+#include "obstacle.h"
 #include "raylib.h"
 #include "util.h"
 
@@ -11,6 +12,10 @@ using namespace std;
 struct Map {
   int w{};
   vector<Line> lines{};
+
+  vector<Obstacle> obstacles{
+      Obstacle({400, 300, 60, 80}),
+  };
 
   Map(int w, vector<Line> lines) : w(w), lines(lines) {}
 
@@ -29,5 +34,10 @@ struct Map {
 
   inline float deltaYPointToSurface(Vector2 p) const {
     return deltaYPointToLineList(p, lines);
+  }
+
+  void draw(int xOffset) {
+    for (auto& line : lines) line.draw(xOffset);
+    for (auto& obstacle : obstacles) obstacle.draw(xOffset);
   }
 };
