@@ -1,5 +1,6 @@
 #pragma once
 
+#include "obstacle.h"
 #include "player.h"
 #include "raylib.h"
 #include "util.h"
@@ -18,7 +19,13 @@ struct App {
               {{1024, 200}, {1500, 500}},
               {{1500, 500}, {2048, 400}},
           }};
+
   Player player{};
+
+  vector<Obstacle> obstacles{
+      Obstacle({400, 300, 60, 80}),
+  };
+
   int offset{0};
 
   App() = default;
@@ -58,6 +65,7 @@ struct App {
 
   void draw() {
     for (auto& line : map.lines) line.draw(xOffset());
+    for (auto& obstacle : obstacles) obstacle.draw(xOffset());
 
     player.draw(xOffset());
 
