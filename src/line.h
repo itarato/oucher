@@ -33,13 +33,40 @@ struct Line {
 
     DrawTriangle(dx(a, -xOffset), dx(c, -xOffset), dx(b, -xOffset), LIGHTGRAY);
   }
+
+  float delta(Vector2 p) const {
+    Vector2 left, right;
+
+    if (a.x < b.x) {
+      left = a;
+      right = b;
+    } else if (b.x < a.x) {
+      left = b;
+      right = a;
+    } else {
+      if (p.x == a.x) {
+        return min(a.y, b.y) - p.y;
+      } else {
+        return INFINITY;
+      }
+    }
+
+    if (p.x < left.x || p.x > right.x) return INFINITY;
+
+    float slope = (right.y - left.y) / (right.x - left.x);
+    float offsX = left.x;
+    float offsY = left.y;
+    float lineY = (slope * (p.x - offsX)) + offsY;
+
+    return lineY - p.y;
+  }
 };
 
 float deltaYPointToLineList(Vector2 p, const vector<Line>& lines) {
   float dy = INFINITY;
 
   for (auto& line : lines) {
-    float currentDY = deltaYPointToLine(p, line.a, line.b);
+    float currentDY = line.delta(p);
     if (dy > currentDY) dy = currentDY;
   }
 
