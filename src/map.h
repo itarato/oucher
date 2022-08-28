@@ -17,6 +17,8 @@ struct Map {
       Obstacle({400, 300, 60, 80}),
   };
 
+  Map() = default;
+
   Map(int w, vector<Line> lines) : w(w), lines(lines) {}
 
   Map(vector<IntVector2> anchors) {
