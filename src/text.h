@@ -25,6 +25,8 @@ struct Text {
   VerticalAlign vAlign{VerticalAlign::Top};
 
   int padding{12};
+  int backgroundPadding{12};
+  optional<Color> backgroundColor{nullopt};
 
   Text(const char* s) : s(s) {}
   Text(const Text& t) = delete;
@@ -36,6 +38,23 @@ struct Text {
     hAlign = HorizontalAlign::Center;
     vAlign = VerticalAlign::Center;
 
+    return *this;
+  }
+
+  Text& toBottomLeft() {
+    hAlign = HorizontalAlign::Left;
+    vAlign = VerticalAlign::Bottom;
+
+    return *this;
+  }
+
+  Text& withColor(Color c) {
+    color = c;
+    return *this;
+  }
+
+  Text& withBackgroundColor(Color c) {
+    backgroundColor = c;
     return *this;
   }
 
@@ -58,6 +77,13 @@ struct Text {
       y = (GetScreenHeight() - fontSize - 2 * padding) / 2;
     } else if (vAlign == VerticalAlign::Bottom) {
       y = GetScreenHeight() - fontSize - padding;
+    }
+
+    if (backgroundColor.has_value()) {
+      DrawRectangle(x - backgroundPadding, y - backgroundPadding,
+                    width + (backgroundPadding << 1),
+                    fontSize + (backgroundPadding << 1),
+                    backgroundColor.value());
     }
 
     DrawText(s, x, y, fontSize, color);
