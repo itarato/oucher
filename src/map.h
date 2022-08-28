@@ -19,11 +19,11 @@ struct Map {
 
   Map(int w, vector<Line> lines) : w(w), lines(lines) {}
 
-  Map(vector<Vector2> anchors) {
-    Vector2 current = anchors[0];
+  Map(vector<IntVector2> anchors) {
+    IntVector2 current = anchors[0];
 
     for (int i = 1; i < (int)anchors.size(); i++) {
-      Vector2 next = anchors[i];
+      IntVector2 next = anchors[i];
 
       lines.emplace_back(current, next);
 

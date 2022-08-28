@@ -21,7 +21,7 @@ struct IntCoord {
   int x;
   int y;
 
-  Vector2 v2() { return Vector2{(float)x, (float)y}; }
+  Vector2 v2() const { return Vector2{(float)x, (float)y}; }
 };
 
 void writeToFile(vector<pair<IntCoord, IntCoord>>& lines,

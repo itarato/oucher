@@ -82,7 +82,9 @@ struct Player : Physics::Object {
     Physics::Object::update();
   }
 
-  void draw(int xOffset) { DrawRectangleRec(frame(), DARKPURPLE); }
+  void draw(int xOffset) {
+    DrawRectangleRec(dx(frame(), -xOffset), DARKPURPLE);
+  }
 
   inline int width() const { return 20; }
   inline int height() const { return 30; }
@@ -94,7 +96,7 @@ struct Player : Physics::Object {
   }
 
   Rectangle frame() {
-    return Rectangle{pos.x - (width() << 1), pos.y - height(), (float)width(),
+    return Rectangle{pos.x - (width() >> 1), pos.y - height(), (float)width(),
                      (float)height()};
   }
 };

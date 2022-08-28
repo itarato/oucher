@@ -8,6 +8,13 @@
 
 using namespace std;
 
+struct IntVector2 {
+  int x{};
+  int y{};
+
+  Vector2 v2() const { return Vector2{(float)x, (float)y}; }
+};
+
 inline Vector2 dx(Vector2 v, float offset) {
   return Vector2{v.x + offset, v.y};
 }

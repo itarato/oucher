@@ -9,8 +9,8 @@
 using namespace std;
 
 struct Line {
-  Vector2 a{};
-  Vector2 b{};
+  IntVector2 a{};
+  IntVector2 b{};
 
   inline float minX() const { return min(a.x, b.x); }
   inline float maxX() const { return max(a.x, b.x); }
@@ -26,26 +26,27 @@ struct Line {
 
     Vector2 c;
     if (a.y < b.y) {
-      c = Vector2{a.x, b.y};
+      c = Vector2{(float)a.x, (float)b.y};
     } else {
-      c = Vector2{b.x, a.y};
+      c = Vector2{(float)b.x, (float)a.y};
     }
 
-    DrawTriangle(dx(a, -xOffset), dx(c, -xOffset), dx(b, -xOffset), LIGHTGRAY);
+    DrawTriangle(dx(a.v2(), -xOffset), dx(c, -xOffset), dx(b.v2(), -xOffset),
+                 LIGHTGRAY);
   }
 
   float delta(Vector2 p) const {
     Vector2 left, right;
 
     if (a.x < b.x) {
-      left = a;
-      right = b;
+      left = a.v2();
+      right = b.v2();
     } else if (b.x < a.x) {
-      left = b;
-      right = a;
+      left = b.v2();
+      right = a.v2();
     } else {
-      if (p.x == a.x) {
-        return min(a.y, b.y) - p.y;
+      if (p.x == (float)a.x) {
+        return (float)min(a.y, b.y) - p.y;
       } else {
         return INFINITY;
       }
