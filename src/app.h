@@ -35,7 +35,10 @@ struct App {
 
   App() = default;
 
-  ~App() { ShowCursor(); }
+  ~App() {
+    ShowCursor();
+    CloseWindow();
+  }
 
   void init() {
     InitWindow(1024, 512, "Oucher V0.1 pre-alpha dev build");

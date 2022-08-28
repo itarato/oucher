@@ -82,15 +82,19 @@ struct Player : Physics::Object {
     Physics::Object::update();
   }
 
-  void draw(int xOffset) {
-    DrawCircle(pos.x - xOffset, pos.y, 6.0f, DARKPURPLE);
-  }
+  void draw(int xOffset) { DrawRectangleRec(frame(), DARKPURPLE); }
 
-  int width() const { return 40; }
+  inline int width() const { return 20; }
+  inline int height() const { return 30; }
 
   void reset() {
     pos.x = 0;
     pos.y = 0;
     v.y = 0;
+  }
+
+  Rectangle frame() {
+    return Rectangle{pos.x - (width() << 1), pos.y - height(), (float)width(),
+                     (float)height()};
   }
 };
