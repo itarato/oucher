@@ -14,7 +14,7 @@
 
 using namespace std;
 
-#define GRID_SIZE 100
+#define GRID_SIZE 25
 
 /******************************************************************************
  * Types
