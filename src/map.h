@@ -1,7 +1,10 @@
 #pragma once
 
+#include <fstream>
+#include <iostream>
 #include <vector>
 
+#include "debug.h"
 #include "line.h"
 #include "obstacle.h"
 #include "raylib.h"
@@ -32,6 +35,28 @@ struct Map {
       current = next;
       w = current.x;
     }
+  }
+
+  Map(const char* fileName) {
+    ifstream file{fileName};
+
+    if (!file.is_open()) {
+      ERROR("Map file %s cannot be opened", fileName);
+      return;
+    }
+
+    int coordLen;
+    file >> coordLen;
+
+    for (int i = 0; i < coordLen; i++) {
+      int x1, y1, x2, y2;
+
+      file >> x1 >> y1 >> x2 >> y2;
+
+      lines.emplace_back(IntVector2{x1, y1}, IntVector2{x2, y2});
+    }
+
+    file.close();
   }
 
   inline float deltaYPointToSurface(Vector2 p) const {

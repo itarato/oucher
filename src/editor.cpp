@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -5,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include "debug.h"
 #include "map.h"
 #include "raylib.h"
 #include "text.h"
@@ -23,7 +25,7 @@ void writeToFile(Map& map, const char* fileName) {
   file.open(fileName, ofstream::out | ofstream::in | ofstream::trunc);
 
   if (!file.is_open()) {
-    cerr << "Cannot write to file\n";
+    ERROR("Cannot write to file");
     return;
   }
 
@@ -34,11 +36,15 @@ void writeToFile(Map& map, const char* fileName) {
   }
 
   file.close();
+
+  LOG("Map saved");
 }
 
 int main(int argc, char** argv) {
+  LOG("Editor started");
+
   if (argc != 2) {
-    cout << "Missing map file name. Use: editor FILENAME\n";
+    ERROR("Missing map file name. Use: editor FILENAME");
     exit(EXIT_FAILURE);
   }
 
@@ -55,7 +61,7 @@ int main(int argc, char** argv) {
 
   int offset{0};
 
-  Map map{};
+  Map map(mapFileName);
 
   optional<IntVector2> lineStart = nullopt;
 
@@ -98,6 +104,13 @@ int main(int argc, char** argv) {
       }
     }
 
+    // Line deletion.
+    if (IsKeyPressed(KEY_D)) {
+      erase_if(map.lines, [&](Line& line) {
+        return line.a.x == currentX && line.a.y == currentY;
+      });
+    }
+
     // Save.
     if (IsKeyPressed(KEY_S)) writeToFile(map, mapFileName);
 
@@ -110,17 +123,20 @@ int main(int argc, char** argv) {
 
     // Recorded lines.
     for (auto& line : map.lines) {
-      DrawLineEx(dx(line.a.v2(), -offset), dx(line.b.v2(), -offset), 3, BLACK);
+      Color lineColor{BLACK};
+      if (line.a.x == currentX && line.a.y == currentY) lineColor = RED;
+      DrawLineEx(dx(line.a.v2(), -offset), dx(line.b.v2(), -offset), 3,
+                 lineColor);
     }
 
     // Current point cross.
     DrawLineEx(Vector2{(float)currentX - offset, (float)(currentY - GRID_SIZE)},
                Vector2{(float)currentX - offset, float(currentY + GRID_SIZE)},
-               3, BLACK);
+               3, DARKBROWN);
     DrawLineEx(
         Vector2{(float)(currentX - GRID_SIZE - offset), (float)(currentY)},
         Vector2{(float)(currentX + GRID_SIZE - offset), (float)(currentY)}, 3,
-        BLACK);
+        DARKBROWN);
 
     // Current line.
     if (lineStart.has_value()) {
@@ -140,6 +156,8 @@ int main(int argc, char** argv) {
   }
 
   CloseWindow();
+
+  LOG("Editor exited");
 
   return EXIT_SUCCESS;
 }
