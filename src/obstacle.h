@@ -16,5 +16,5 @@ struct Obstacle {
 
   Obstacle(Rectangle frame) : frame(frame) {}
 
-  void draw(int xOffset) { DrawRectangleRec(dx(frame, -xOffset), BROWN); }
+  void draw(int xOffset) const { DrawRectangleRec(dx(frame, -xOffset), BROWN); }
 };

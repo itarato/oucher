@@ -17,7 +17,7 @@ struct Line {
   inline float minY() const { return min(a.y, b.y); }
   inline float maxY() const { return max(a.y, b.y); }
 
-  void draw(int xOffset) {
+  void draw(int xOffset) const {
     if (maxX() < xOffset) return;
     if (minX() - xOffset > GetScreenWidth()) return;
 

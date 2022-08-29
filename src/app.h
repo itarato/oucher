@@ -29,18 +29,21 @@ vector<Map> default_map_file_list(const char* folder) {
 enum class AppState {
   Ready,
   Running,
+  Losing,
 };
 
 struct App {
   int stage{0};
 
-  vector<Map> maps = default_map_file_list("./maps");
+  const vector<Map> maps = default_map_file_list("./maps");
 
   Player player{};
 
   int offset{0};
 
   AppState state{AppState::Ready};
+
+  Countdown losingStateCountdown{180};
 
   App() = default;
 
@@ -83,16 +86,22 @@ struct App {
       if (IsKeyPressed(KEY_ENTER)) {
         state = AppState::Running;
       }
+    } else if (state == AppState::Losing) {
+      losingStateCountdown.update();
+      if (losingStateCountdown.isComplete()) {
+        handle_losing_to_ready();
+      }
     }
   }
 
   void update_game() {
-    auto distanceFromGround = maps[stage].deltaYPointToSurface(player.pos);
+    auto distanceFromGround = currentMap().deltaYPointToSurface(player.pos);
     player.update(distanceFromGround);
 
-    if (player.pos.x >= maps[stage].w - player.width()) {
-      handle_win();
-    }
+    if (player.pos.x >= currentMap().w - player.width()) handle_win();
+
+    if (player.isDead()) handle_losing();
+    // if (map.)
   }
 
   void draw() {
@@ -100,6 +109,9 @@ struct App {
       draw_game();
     } else if (state == AppState::Ready) {
       draw_menu();
+    } else if (state == AppState::Losing) {
+      draw_game();
+      Text::build("GAME OVER").toCenter().withColor(RED).toLarge().draw();
     }
   }
 
@@ -109,8 +121,8 @@ struct App {
         .draw();
   }
 
-  void draw_game() {
-    maps[stage].draw(xOffset());
+  void draw_game() const {
+    currentMap().draw(xOffset());
     player.draw(xOffset());
 
     // DrawFPS(4, 4);
@@ -123,11 +135,24 @@ struct App {
     player.reset();
   }
 
+  void handle_losing() {
+    state = AppState::Losing;
+    losingStateCountdown.restart();
+  }
+
+  void handle_losing_to_ready() {
+    state = AppState::Ready;
+    stage = 0;
+    player.reset();
+  }
+
   int xOffset() const {
-    if (maps[stage].w < GetScreenWidth()) return 0;
+    if (currentMap().w < GetScreenWidth()) return 0;
     if (player.pos.x < APP_SCROLL_START_PADDING) return 0;
 
     return min((int)player.pos.x - APP_SCROLL_START_PADDING,
-               maps[stage].w - GetScreenWidth());
+               currentMap().w - GetScreenWidth());
   }
+
+  const Map& currentMap() const { return maps.at(stage); }
 };

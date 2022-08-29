@@ -66,8 +66,16 @@ struct Map {
     return deltaYPointToLineList(p, lines);
   }
 
-  void draw(int xOffset) {
+  void draw(int xOffset) const {
     for (auto& line : lines) line.draw(xOffset);
     for (auto& obstacle : obstacles) obstacle.draw(xOffset);
+  }
+
+  bool hasObstacleCollision(Rectangle frame) const {
+    for (auto& obstacle : obstacles) {
+      if (CheckCollisionRecs(frame, obstacle.frame)) return true;
+    }
+
+    return false;
   }
 };

@@ -14,7 +14,7 @@ using namespace std;
 #define PLAYER_GRAVITY_ACCELERATE 1.1f
 #define PLAYER_GRAVITY_BACKFALL_TRESHOLD 1.0f
 #define PLAYER_GRAVITY_MAX_ACCELERATE 8.0f
-#define PLAYER_LIFT_FROM_BELOW_TRESHOLD -10.0f
+#define PLAYER_LIFT_FROM_BELOW_TRESHOLD -15.0f
 #define PLAYER_ON_GROUND_TRESHOLD 5.0f
 
 namespace Physics {
@@ -98,7 +98,7 @@ struct Player : Physics::Object {
     Physics::Object::update();
   }
 
-  void draw(int xOffset) {
+  void draw(int xOffset) const {
     DrawRectangleRec(dx(frame(), -xOffset), DARKPURPLE);
   }
 
@@ -109,10 +109,18 @@ struct Player : Physics::Object {
     pos.x = 0;
     pos.y = 0;
     v.y = 0;
+    v.x = PLAYER_HORIZONTAL_SPEED;
   }
 
-  Rectangle frame() {
+  Rectangle frame() const {
     return Rectangle{pos.x - (width() >> 1), pos.y - height(), (float)width(),
                      (float)height()};
+  }
+
+  bool isDead() const {
+    if (pos.y > GetScreenHeight()) return true;
+    if (distanceFromGround < PLAYER_LIFT_FROM_BELOW_TRESHOLD) return true;
+
+    return false;
   }
 };

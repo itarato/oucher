@@ -58,6 +58,11 @@ struct Text {
     return *this;
   }
 
+  Text& toLarge() {
+    fontSize = 20;
+    return *this;
+  }
+
   void draw() {
     int width = MeasureText(s, fontSize);
     int x{};
