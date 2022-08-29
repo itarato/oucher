@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
 
-  InitWindow(2000, 512, "Oucher editor");
+  InitWindow(2000, 500, "Oucher editor");
 
   /****************************************************************************
    * Data

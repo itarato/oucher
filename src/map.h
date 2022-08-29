@@ -54,6 +54,9 @@ struct Map {
       file >> x1 >> y1 >> x2 >> y2;
 
       lines.emplace_back(IntVector2{x1, y1}, IntVector2{x2, y2});
+
+      if (x1 > w) w = x1;
+      if (x2 > w) w = x2;
     }
 
     file.close();

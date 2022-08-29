@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <utility>
+
 #include "map.h"
 #include "player.h"
 #include "raylib.h"
@@ -10,22 +13,28 @@
 
 using namespace std;
 
+vector<Map> default_map_file_list(const char* folder) {
+  FilePathList files = LoadDirectoryFiles(folder);
+
+  vector<Map> out{};
+
+  for (int i = 0; i < (int)files.count; i++) {
+    out.emplace_back(files.paths[i]);
+    LOG("Map file loaded: %s", files.paths[i]);
+  }
+
+  return out;
+}
+
 enum class AppState {
   Ready,
   Running,
 };
 
 struct App {
-  int stage{};
+  int stage{0};
 
-  vector<Map> maps{
-      {
-          {{0, 400}, {1024, 400}},
-      },
-      {
-          {{0, 100}, {500, 300}, {1024, 200}, {1500, 500}, {2048, 400}},
-      },
-  };
+  vector<Map> maps = default_map_file_list("./maps");
 
   Player player{};
 
@@ -41,16 +50,18 @@ struct App {
   }
 
   void init() {
-    InitWindow(1024, 512, "Oucher V0.1 pre-alpha dev build");
+    InitWindow(1000, 500, "Oucher V0.1 pre-alpha dev build");
     SetTargetFPS(60);
     HideCursor();
-
-    stage = 0;
 
     restart();
   }
 
-  void restart() {}
+  void restart() {
+    stage = 0;
+    player.reset();
+    state = AppState::Ready;
+  }
 
   void loop() {
     while (!WindowShouldClose()) {
@@ -76,15 +87,8 @@ struct App {
   }
 
   void update_game() {
-    player.update();
-
-    auto dy = maps[stage].deltaYPointToSurface(player.pos);
-    if (dy != INFINITY) {
-      if (dy < 0.0 && dy > PLAYER_LIFT_FROM_BELOW_TRESHOLD) {
-        player.pos.y += dy;
-        player.v.y = 0.0f;
-      }
-    }
+    auto distanceFromGround = maps[stage].deltaYPointToSurface(player.pos);
+    player.update(distanceFromGround);
 
     if (player.pos.x >= maps[stage].w - player.width()) {
       handle_win();
