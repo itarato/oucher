@@ -101,7 +101,7 @@ struct App {
     if (player.pos.x >= currentMap().w - player.width()) handle_win();
 
     if (player.isDead()) handle_losing();
-    // if (map.)
+    if (currentMap().hasObstacleCollision(player.frame())) handle_losing();
   }
 
   void draw() {
