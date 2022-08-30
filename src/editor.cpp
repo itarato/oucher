@@ -30,10 +30,18 @@ void writeToFile(Map& map, const char* fileName) {
     return;
   }
 
+  // Write lines.
   file << map.lines.size() << endl;
-  for (auto& line : map.lines) {
+  for (const auto& line : map.lines) {
     file << line.a.x << ' ' << line.a.y << ' ' << line.b.x << ' ' << line.b.y
          << endl;
+  }
+
+  // Write obstacles.
+  file << map.obstacles.size() << endl;
+  for (const auto& obstacle : map.obstacles) {
+    file << (int)obstacle.type << ' ' << (int)obstacle.pos.x << ' '
+         << (int)obstacle.pos.y << endl;
   }
 
   file.close();

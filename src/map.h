@@ -57,6 +57,17 @@ struct Map {
       if (x2 > w) w = x2;
     }
 
+    int obstacleLen;
+    file >> obstacleLen;
+
+    for (int j = 0; j < obstacleLen; j++) {
+      int oType, oX, oY;
+      file >> oType >> oX >> oY;
+
+      obstacles.emplace_back((ObstacleType)oType,
+                             Vector2{(float)oX, (float)oY});
+    }
+
     file.close();
   }
 
