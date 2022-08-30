@@ -20,9 +20,16 @@ enum class ObstacleType {
 };
 
 struct Obstacle {
-  Rectangle frame;
+  ObstacleType type{ObstacleType::Small};
+  Vector2 pos{};
 
-  Obstacle(Rectangle frame) : frame(frame) {}
+  Obstacle(ObstacleType type, Vector2 pos) : type(type), pos(pos) {}
 
-  void draw(int xOffset) const { DrawRectangleRec(dx(frame, -xOffset), BROWN); }
+  Rectangle frame() const {
+    return Rectangle{pos.x, pos.y, (float)obstacleFramePreset[(int)type].x,
+                     (float)obstacleFramePreset[(int)type].y};
+  }
+  void draw(int xOffset) const {
+    DrawRectangleRec(dx(frame(), -xOffset), BROWN);
+  }
 };

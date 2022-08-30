@@ -16,9 +16,7 @@ struct Map {
   int w{};
   vector<Line> lines{};
 
-  vector<Obstacle> obstacles{
-      Obstacle({400, 300, 60, 80}),
-  };
+  vector<Obstacle> obstacles{};
 
   Map() = default;
 
@@ -73,7 +71,7 @@ struct Map {
 
   bool hasObstacleCollision(Rectangle frame) const {
     for (auto& obstacle : obstacles) {
-      if (CheckCollisionRecs(frame, obstacle.frame)) return true;
+      if (CheckCollisionRecs(frame, obstacle.frame())) return true;
     }
 
     return false;
