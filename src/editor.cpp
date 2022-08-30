@@ -126,7 +126,9 @@ int main(int argc, char** argv) {
     }
 
     // Obstacle creation.
-    if (IsKeyPressed(selectedObstacle + KEY_ZERO) && IsMouseButtonPressed(2)) {
+    if (IsKeyDown(selectedObstacle + KEY_ZERO) && IsMouseButtonPressed(2)) {
+      map.obstacles.emplace_back((ObstacleType)selectedObstacle,
+                                 GetMousePosition());
     }
 
     // Save.
@@ -145,6 +147,11 @@ int main(int argc, char** argv) {
       if (line.a.x == currentGridX && line.a.y == currentGridY) lineColor = RED;
       DrawLineEx(dx(line.a.v2(), -offset), dx(line.b.v2(), -offset), 3,
                  lineColor);
+    }
+
+    // Recorded obstacles;
+    for (auto& obstacle : map.obstacles) {
+      obstacle.draw(offset);
     }
 
     // Current point cross.
