@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 
+#include "assets.h"
 #include "map.h"
 #include "player.h"
 #include "raylib.h"
@@ -48,6 +49,8 @@ struct App {
   App() = default;
 
   ~App() {
+    assets.free();
+
     ShowCursor();
     CloseWindow();
   }
@@ -56,6 +59,8 @@ struct App {
     InitWindow(1000, 500, "Oucher V0.1 pre-alpha dev build");
     SetTargetFPS(60);
     HideCursor();
+
+    assets.preloadTextures("./assets/images");
 
     restart();
   }

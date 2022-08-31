@@ -4,10 +4,13 @@
 #include <vector>
 
 #include "raylib.h"
+#include "sprite.h"
 #include "util.h"
 
 using namespace std;
 
+#define PLAYER_WIDTH 20
+#define PLAYER_HEIGHT 30
 #define PLAYER_JUMP_V -20.0f
 #define PLAYER_HORIZONTAL_SPEED 5.0f
 #define PLAYER_GRAVITY_SLOWDOWN 0.87f
@@ -68,6 +71,7 @@ struct Gravity : Behaviour {
 
 struct Player : Physics::Object {
   vector<unique_ptr<Physics::Behaviour>> behaviours;
+  Sprite sprite{{"run_0", "run_1", "run_2", "run_3", "run_4", "run_5"}, 2};
 
   Player() {
     behaviours.push_back(make_unique<Physics::Moving>());
@@ -96,10 +100,12 @@ struct Player : Physics::Object {
       behaviour->update(this);
     }
     Physics::Object::update();
+
+    sprite.update();
   }
 
   void draw(int xOffset) const {
-    DrawRectangleRec(dx(frame(), -xOffset), DARKPURPLE);
+    sprite.draw(dxy(pos, -xOffset - (PLAYER_WIDTH >> 1), -PLAYER_HEIGHT));
   }
 
   inline int width() const { return 20; }
