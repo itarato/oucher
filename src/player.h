@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "assets.h"
 #include "raylib.h"
 #include "sprite.h"
 #include "util.h"
@@ -12,6 +13,7 @@ using namespace std;
 #define PLAYER_WIDTH 20
 #define PLAYER_HEIGHT 30
 #define PLAYER_JUMP_V -20.0f
+#define PLAYER_JUMP_SMALL_V -10.0f
 #define PLAYER_HORIZONTAL_SPEED 5.0f
 #define PLAYER_GRAVITY_SLOWDOWN 0.87f
 #define PLAYER_GRAVITY_ACCELERATE 1.1f
@@ -46,12 +48,8 @@ struct Moving : Behaviour {
     if (IsKeyPressed(KEY_SPACE) && object->onGround()) {
       object->v.y = PLAYER_JUMP_V;
     }
-
-    if (IsKeyDown(KEY_LEFT)) {
-      object->v.x = -PLAYER_HORIZONTAL_SPEED;
-    }
-    if (IsKeyDown(KEY_RIGHT)) {
-      object->v.x = PLAYER_HORIZONTAL_SPEED;
+    if (IsKeyPressed(KEY_LEFT_CONTROL) && object->onGround()) {
+      object->v.y = PLAYER_JUMP_SMALL_V;
     }
   }
 };
@@ -105,7 +103,13 @@ struct Player : Physics::Object {
   }
 
   void draw(int xOffset) const {
-    sprite.draw(dxy(pos, -xOffset - (PLAYER_WIDTH >> 1), -PLAYER_HEIGHT));
+    Vector2 framePos = dxy(pos, -xOffset - (PLAYER_WIDTH >> 1), -PLAYER_HEIGHT);
+
+    if (distanceFromGround > PLAYER_ON_GROUND_TRESHOLD) {
+      DrawTextureV(*assets.texture("jump"), framePos, WHITE);
+    } else {
+      sprite.draw(framePos);
+    }
   }
 
   inline int width() const { return 20; }
