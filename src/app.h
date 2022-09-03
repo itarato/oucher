@@ -46,6 +46,8 @@ struct App {
 
   Countdown losingStateCountdown{180};
 
+  Shader shader;
+
   App() = default;
 
   ~App() {
@@ -61,6 +63,8 @@ struct App {
     HideCursor();
 
     assets.preloadTextures("./assets/images");
+
+    shader = LoadShader(0, "./assets/shaders/ground.fs");
 
     restart();
   }
@@ -78,8 +82,11 @@ struct App {
       BeginDrawing();
       ClearBackground(RAYWHITE);
 
-      draw();
+      BeginShaderMode(shader);
+      draw_shader_mode();
+      EndShaderMode();
 
+      draw();
       EndDrawing();
     }
   }
@@ -127,11 +134,21 @@ struct App {
   }
 
   void draw_game() const {
-    currentMap().draw(xOffset());
     player.draw(xOffset());
 
     // DrawFPS(4, 4);
   }
+
+  void draw_shader_mode() const {
+    if (state == AppState::Running) {
+      draw_game_shader_mode();
+    } else if (state == AppState::Ready) {
+    } else if (state == AppState::Losing) {
+      draw_game_shader_mode();
+    }
+  }
+
+  void draw_game_shader_mode() const { currentMap().draw(xOffset()); }
 
   void handle_win() {
     state = AppState::Ready;
