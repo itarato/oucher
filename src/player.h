@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "assets.h"
+#include "defs.h"
 #include "raylib.h"
 #include "sprite.h"
 #include "util.h"
@@ -15,6 +16,7 @@ using namespace std;
 #define PLAYER_JUMP_V -20.0f
 #define PLAYER_JUMP_SMALL_V -10.0f
 #define PLAYER_HORIZONTAL_SPEED 5.0f
+#define PLAYER_HORIZONTAL_SPEED_FAST 20.0f
 #define PLAYER_GRAVITY_SLOWDOWN 0.87f
 #define PLAYER_GRAVITY_ACCELERATE 1.1f
 #define PLAYER_GRAVITY_BACKFALL_TRESHOLD 1.0f
@@ -44,12 +46,28 @@ struct Behaviour {
 };
 
 struct Moving : Behaviour {
+  bool dashReset{true};
+
   void update(Object* object) {
     if (IsKeyPressed(KEY_SPACE) && object->onGround()) {
       object->v.y = PLAYER_JUMP_V;
     }
     if (IsKeyPressed(KEY_LEFT_CONTROL) && object->onGround()) {
       object->v.y = PLAYER_JUMP_SMALL_V;
+    }
+    if (IsKeyPressed(KEY_LEFT_SHIFT) && !object->onGround() && dashReset) {
+      object->v.x = PLAYER_HORIZONTAL_SPEED_FAST;
+      dashReset = false;
+    }
+
+    if (object->onGround()) {
+      dashReset = true;
+    }
+
+    if (object->v.x > PLAYER_HORIZONTAL_SPEED) {
+      object->v.x -= 1.0f;
+    } else {
+      object->v.x = PLAYER_HORIZONTAL_SPEED;
     }
   }
 };

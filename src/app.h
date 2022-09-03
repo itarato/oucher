@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "assets.h"
+#include "defs.h"
 #include "map.h"
 #include "player.h"
 #include "raylib.h"
@@ -60,7 +61,7 @@ struct App {
 
   void init() {
     InitWindow(1000, 500, "Oucher V0.1 pre-alpha dev build");
-    SetTargetFPS(60);
+    SetTargetFPS(FPS);
     HideCursor();
 
     assets.preloadTextures("./assets/images");
