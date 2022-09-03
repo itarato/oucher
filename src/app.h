@@ -47,6 +47,7 @@ struct App {
   Countdown losingStateCountdown{180};
 
   Shader shader;
+  int groundShaderOffsetLoc{};
 
   App() = default;
 
@@ -65,6 +66,7 @@ struct App {
     assets.preloadTextures("./assets/images");
 
     shader = LoadShader(0, "./assets/shaders/ground.fs");
+    groundShaderOffsetLoc = GetShaderLocation(shader, "x_offset");
 
     restart();
   }
@@ -81,6 +83,10 @@ struct App {
 
       BeginDrawing();
       ClearBackground(RAYWHITE);
+
+      int offset = xOffset();
+      SetShaderValue(shader, groundShaderOffsetLoc, &offset,
+                     SHADER_UNIFORM_INT);
 
       BeginShaderMode(shader);
       draw_shader_mode();
@@ -134,9 +140,10 @@ struct App {
   }
 
   void draw_game() const {
+    currentMap().draw_not_ground(xOffset());
     player.draw(xOffset());
 
-    // DrawFPS(4, 4);
+    DrawFPS(4, 4);
   }
 
   void draw_shader_mode() const {
@@ -148,7 +155,7 @@ struct App {
     }
   }
 
-  void draw_game_shader_mode() const { currentMap().draw(xOffset()); }
+  void draw_game_shader_mode() const { currentMap().draw_ground(xOffset()); }
 
   void handle_win() {
     state = AppState::Ready;

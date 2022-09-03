@@ -35,6 +35,14 @@ struct Line {
                  LIGHTGRAY);
   }
 
+  void draw_line_only(int xOffset) const {
+    if (maxX() < xOffset) return;
+    if (minX() - xOffset > GetScreenWidth()) return;
+
+    DrawLineEx(dxy(a.v2(), -xOffset, 4.0f), dxy(b.v2(), -xOffset, 4.0f), 8.0f,
+               DARKGREEN);
+  }
+
   float delta(Vector2 p) const {
     Vector2 left, right;
 

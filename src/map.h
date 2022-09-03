@@ -75,8 +75,12 @@ struct Map {
     return deltaYPointToLineList(p, lines);
   }
 
-  void draw(int xOffset) const {
+  void draw_ground(int xOffset) const {
     for (auto& line : lines) line.draw(xOffset);
+  }
+
+  void draw_not_ground(int xOffset) const {
+    for (auto& line : lines) line.draw_line_only(xOffset);
     for (auto& obstacle : obstacles) obstacle.draw(xOffset);
   }
 
