@@ -6,6 +6,8 @@ out vec4 finalColor;
 
 uniform int x_offset=0;
 
+const float renderHeight=400.;
+
 void main()
 {
     int mx=int(gl_FragCoord.x+x_offset)/8;
@@ -25,6 +27,8 @@ void main()
         color=vec4(.6314,.5804,.4902,1.);
     }
     
-    finalColor=color;
+    // finalColor=color;
+    vec4 brown=vec4(.4196,.3529,.2392,1.);
+    finalColor=mix(color,brown,(renderHeight-gl_FragCoord.y)/renderHeight);
 }
 

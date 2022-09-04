@@ -29,6 +29,7 @@ struct Obstacle {
     return Rectangle{pos.x, pos.y, (float)obstacleFramePreset[(int)type].x,
                      (float)obstacleFramePreset[(int)type].y};
   }
+
   void draw(int xOffset) const {
     DrawRectangleRec(dx(frame(), -xOffset), BROWN);
   }

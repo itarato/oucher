@@ -22,7 +22,7 @@ struct Line {
     if (minX() - xOffset > GetScreenWidth()) return;
 
     DrawRectangle(minX() - xOffset, maxY(), maxX() - minX(),
-                  GetScreenHeight() - maxY(), LIGHTGRAY);
+                  GetScreenHeight() - maxY(), DARKBROWN);
 
     Vector2 c;
     if (a.y < b.y) {
@@ -32,7 +32,7 @@ struct Line {
     }
 
     DrawTriangle(dx(a.v2(), -xOffset), dx(c, -xOffset), dx(b.v2(), -xOffset),
-                 LIGHTGRAY);
+                 DARKBROWN);
   }
 
   void draw_line_only(int xOffset) const {

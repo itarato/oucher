@@ -14,9 +14,9 @@ using namespace std;
 #define PLAYER_WIDTH 20
 #define PLAYER_HEIGHT 30
 #define PLAYER_JUMP_V -20.0f
-#define PLAYER_JUMP_SMALL_V -10.0f
-#define PLAYER_HORIZONTAL_SPEED 5.0f
-#define PLAYER_HORIZONTAL_SPEED_FAST 20.0f
+#define PLAYER_JUMP_SMALL_V -8.0f
+#define PLAYER_HORIZONTAL_SPEED 2.0f
+#define PLAYER_HORIZONTAL_SPEED_FAST 12.0f
 #define PLAYER_GRAVITY_SLOWDOWN 0.87f
 #define PLAYER_GRAVITY_ACCELERATE 1.1f
 #define PLAYER_GRAVITY_BACKFALL_TRESHOLD 1.0f
@@ -46,26 +46,21 @@ struct Behaviour {
 };
 
 struct Moving : Behaviour {
-  bool dashReset{true};
-
   void update(Object* object) {
-    if (IsKeyPressed(KEY_SPACE) && object->onGround()) {
+    if (IsKeyPressed(KEY_UP) && object->onGround()) {
       object->v.y = PLAYER_JUMP_V;
     }
-    if (IsKeyPressed(KEY_LEFT_CONTROL) && object->onGround()) {
+    if (IsKeyPressed(KEY_LEFT) && object->onGround()) {
       object->v.y = PLAYER_JUMP_SMALL_V;
     }
-    if (IsKeyPressed(KEY_LEFT_SHIFT) && !object->onGround() && dashReset) {
+    if (IsKeyPressed(KEY_RIGHT) && object->onGround()) {
+      object->v.y = PLAYER_JUMP_SMALL_V;
       object->v.x = PLAYER_HORIZONTAL_SPEED_FAST;
-      dashReset = false;
     }
 
-    if (object->onGround()) {
-      dashReset = true;
-    }
-
-    if (object->v.x > PLAYER_HORIZONTAL_SPEED) {
-      object->v.x -= 1.0f;
+    if (object->v.x > PLAYER_HORIZONTAL_SPEED + 1.0f) {
+      object->v.x = PLAYER_HORIZONTAL_SPEED +
+                    (object->v.x - PLAYER_HORIZONTAL_SPEED) * 0.9;
     } else {
       object->v.x = PLAYER_HORIZONTAL_SPEED;
     }

@@ -32,6 +32,7 @@ enum class AppState {
   Ready,
   Running,
   Losing,
+  Pause,
 };
 
 struct App {
@@ -60,7 +61,7 @@ struct App {
   }
 
   void init() {
-    InitWindow(1000, 500, "Oucher V0.1 pre-alpha dev build");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Oucher V0.1 pre-alpha dev build");
     SetTargetFPS(FPS);
     HideCursor();
 
@@ -83,7 +84,7 @@ struct App {
       update();
 
       BeginDrawing();
-      ClearBackground(RAYWHITE);
+      ClearBackground(SKYBLUE);
 
       int offset = xOffset();
       SetShaderValue(shader, groundShaderOffsetLoc, &offset,
@@ -110,6 +111,13 @@ struct App {
       if (losingStateCountdown.isComplete()) {
         handle_losing_to_ready();
       }
+    } else if (state == AppState::Pause) {
+      if (IsKeyPressed(KEY_N)) {
+        update_game();
+      }
+      if (IsKeyPressed(KEY_PAUSE)) {
+        state = AppState::Running;
+      }
     }
   }
 
@@ -121,6 +129,10 @@ struct App {
 
     if (player.isDead()) handle_losing();
     if (currentMap().hasObstacleCollision(player.frame())) handle_losing();
+
+    if (IsKeyPressed(KEY_PAUSE)) {
+      state = AppState::Pause;
+    }
   }
 
   void draw() {
@@ -131,6 +143,9 @@ struct App {
     } else if (state == AppState::Losing) {
       draw_game();
       Text::build("GAME OVER").toCenter().withColor(RED).toLarge().draw();
+    } else if (state == AppState::Pause) {
+      draw_game();
+      Text::build("PAUSED").toCenter().withColor(MAGENTA).toLarge().draw();
     }
   }
 
@@ -152,6 +167,8 @@ struct App {
       draw_game_shader_mode();
     } else if (state == AppState::Ready) {
     } else if (state == AppState::Losing) {
+      draw_game_shader_mode();
+    } else if (state == AppState::Pause) {
       draw_game_shader_mode();
     }
   }

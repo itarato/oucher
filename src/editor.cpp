@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "debug.h"
+#include "defs.h"
 #include "map.h"
 #include "obstacle.h"
 #include "raylib.h"
@@ -57,13 +58,15 @@ int main(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
 
-  InitWindow(2000, 500, "Oucher editor");
+  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Oucher editor");
 
   /****************************************************************************
    * Data
    ***************************************************************************/
 
   const char* mapFileName = argv[1];
+
+  Vector2 currentMousePos{};
 
   int currentX{};
   int currentY{};
@@ -86,6 +89,7 @@ int main(int argc, char** argv) {
      *************************************************************************/
 
     // Set current cursor.
+    currentMousePos = GetMousePosition();
     currentX = GetMouseX() + offset;
     currentY = GetMouseY();
     currentGridX =
@@ -139,6 +143,12 @@ int main(int argc, char** argv) {
                                  GetMousePosition());
     }
 
+    if (IsKeyPressed(KEY_D)) {
+      erase_if(map.obstacles, [&](const auto& obstacle) {
+        return CheckCollisionPointRec(currentMousePos, obstacle.frame());
+      });
+    }
+
     // Save.
     if (IsKeyPressed(KEY_S)) writeToFile(map, mapFileName);
 
@@ -153,7 +163,7 @@ int main(int argc, char** argv) {
     for (auto& line : map.lines) {
       Color lineColor{BLACK};
       if (line.a.x == currentGridX && line.a.y == currentGridY) lineColor = RED;
-      DrawLineEx(dx(line.a.v2(), -offset), dx(line.b.v2(), -offset), 3,
+      DrawLineEx(dx(line.a.v2(), -offset), dx(line.b.v2(), -offset), 1,
                  lineColor);
     }
 
