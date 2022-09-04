@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <vector>
 
 #include "raylib.h"
@@ -81,3 +82,9 @@ struct Interpolator {
     completed = false;
   }
 };
+
+int rand_range(int min, int max) { return (rand() % (max - min + 1)) + min; }
+
+float randf() { return (float)(rand() & 0xFFFF) / (float)0xFFFF; }
+
+float randf(float min, float max) { return randf() * (max - min) + min; }

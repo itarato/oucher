@@ -1,16 +1,15 @@
-
 #include <cstdlib>
-#include <optional>
-#include <vector>
+#include <ctime>
 
 #include "app.h"
 #include "debug.h"
-#include "raylib.h"
 
 using namespace std;
 
 int main() {
   LOG("Oucher started");
+
+  srand(time(nullptr));
 
   App app{};
   app.init();

@@ -5,6 +5,7 @@
 
 #include "assets.h"
 #include "defs.h"
+#include "particles.h"
 #include "physics.h"
 #include "raylib.h"
 #include "sprite.h"
@@ -16,6 +17,8 @@ struct Player : Physics::Object {
   vector<unique_ptr<Physics::Behaviour>> behaviours;
   Sprite sprite{{"run_0", "run_1", "run_2", "run_3", "run_4", "run_5"}, 2};
   Interpolator deadRotation{0.0f, 360.0f, 20.0f};
+
+  vector<Sprinkler> blood{};
 
   Player() {
     behaviours.push_back(make_unique<Physics::Moving>());
@@ -47,6 +50,9 @@ struct Player : Physics::Object {
 
     if (isDead()) {
       deadRotation.update();
+
+      if (rand_range(0, 2) == 0) blood.emplace_back(pos);
+      for (auto& bloodCell : blood) bloodCell.update();
     }
   }
 
@@ -65,6 +71,8 @@ struct Player : Physics::Object {
           Vector2{(float)(deadTexture.width >> 1),
                   (float)(deadTexture.height >> 1)},
           deadRotation.v, WHITE);
+
+      for (const auto& bloodCell : blood) bloodCell.draw();
     } else if (distanceFromGround > PLAYER_ON_GROUND_TRESHOLD) {
       DrawTextureV(*assets.texture("jump"), framePos, WHITE);
     } else {
@@ -82,6 +90,7 @@ struct Player : Physics::Object {
     v.x = PLAYER_HORIZONTAL_SPEED;
     dead = false;
     deadRotation.reset();
+    blood.clear();
   }
 
   Rectangle frame() const {
