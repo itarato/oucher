@@ -123,8 +123,10 @@ struct App {
     auto distanceFromGround = currentMap().deltaYPointToSurface(player.pos);
     player.update(distanceFromGround);
 
-    if (player.pos.x >= currentMap().w - player.width()) handle_win();
-
+    if (state == AppState::Running &&
+        player.pos.x >= currentMap().w - player.width()) {
+      handle_win();
+    }
     if (currentMap().hasObstacleCollision(player.frame())) player.kill();
     if (state == AppState::Running && player.isDead()) handle_losing();
 

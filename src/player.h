@@ -92,6 +92,7 @@ struct Gravity : Behaviour {
 struct Player : Physics::Object {
   vector<unique_ptr<Physics::Behaviour>> behaviours;
   Sprite sprite{{"run_0", "run_1", "run_2", "run_3", "run_4", "run_5"}, 2};
+  Interpolator deadRotation{0.0f, 360.0f, 20.0f};
 
   Player() {
     behaviours.push_back(make_unique<Physics::Moving>());
@@ -120,6 +121,10 @@ struct Player : Physics::Object {
 
     if (pos.y > GetScreenHeight()) kill();
     if (distanceFromGround < PLAYER_LIFT_FROM_BELOW_TRESHOLD) kill();
+
+    if (isDead()) {
+      deadRotation.update();
+    }
   }
 
   void draw(int xOffset) const {
@@ -127,10 +132,16 @@ struct Player : Physics::Object {
 
     if (isDead()) {
       Texture2D deadTexture = *assets.texture("dead");
-      DrawTextureV(
+      DrawTexturePro(
           deadTexture,
-          dxy(pos, -xOffset - (deadTexture.width >> 1), -deadTexture.height),
-          WHITE);
+          Rectangle{0.0f, 0.0f, (float)deadTexture.width,
+                    (float)deadTexture.height},
+          Rectangle{pos.x - xOffset - (deadTexture.width >> 1),
+                    pos.y - (deadTexture.height >> 1), (float)deadTexture.width,
+                    (float)deadTexture.height},
+          Vector2{(float)(deadTexture.width >> 1),
+                  (float)(deadTexture.height >> 1)},
+          deadRotation.v, WHITE);
     } else if (distanceFromGround > PLAYER_ON_GROUND_TRESHOLD) {
       DrawTextureV(*assets.texture("jump"), framePos, WHITE);
     } else {
@@ -147,6 +158,7 @@ struct Player : Physics::Object {
     v.y = 0.0f;
     v.x = PLAYER_HORIZONTAL_SPEED;
     dead = false;
+    deadRotation.reset();
   }
 
   Rectangle frame() const {

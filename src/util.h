@@ -52,3 +52,32 @@ struct Countdown {
     enabled = true;
   }
 };
+
+struct Interpolator {
+  float v{};
+  const float start{};
+  const float target{};
+  const float step{};
+  bool completed{false};
+
+  Interpolator(float start, float target, float step)
+      : v(start), start(start), target(target), step(step) {}
+
+  void update() {
+    if (completed) return;
+
+    bool beforeCmp = v <= target;
+    v += step;
+    bool afterCmp = v <= target;
+
+    if (beforeCmp ^ afterCmp) {
+      completed = true;
+      v = target;
+    }
+  }
+
+  void reset() {
+    v = start;
+    completed = false;
+  }
+};
