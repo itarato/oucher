@@ -29,6 +29,7 @@ struct Object {
   Vector2 pos{};
   Vector2 v{};
   float distanceFromGround{};
+  bool dead{false};
 
   void update() {
     pos.y += v.y;
@@ -39,6 +40,10 @@ struct Object {
   inline bool onGround() const {
     return fabs(distanceFromGround) < PLAYER_ON_GROUND_TRESHOLD;
   }
+
+  inline void kill() { dead = true; }
+
+  bool isDead() const { return dead; }
 };
 
 struct Behaviour {
@@ -47,22 +52,26 @@ struct Behaviour {
 
 struct Moving : Behaviour {
   void update(Object* object) {
-    if (IsKeyPressed(KEY_UP) && object->onGround()) {
-      object->v.y = PLAYER_JUMP_V;
-    }
-    if (IsKeyPressed(KEY_LEFT) && object->onGround()) {
-      object->v.y = PLAYER_JUMP_SMALL_V;
-    }
-    if (IsKeyPressed(KEY_RIGHT) && object->onGround()) {
-      object->v.y = PLAYER_JUMP_SMALL_V;
-      object->v.x = PLAYER_HORIZONTAL_SPEED_FAST;
-    }
+    if (!object->isDead()) {
+      if (IsKeyPressed(KEY_UP) && object->onGround()) {
+        object->v.y = PLAYER_JUMP_V;
+      }
+      if (IsKeyPressed(KEY_LEFT) && object->onGround()) {
+        object->v.y = PLAYER_JUMP_SMALL_V;
+      }
+      if (IsKeyPressed(KEY_RIGHT) && object->onGround()) {
+        object->v.y = PLAYER_JUMP_SMALL_V;
+        object->v.x = PLAYER_HORIZONTAL_SPEED_FAST;
+      }
 
-    if (object->v.x > PLAYER_HORIZONTAL_SPEED + 1.0f) {
-      object->v.x = PLAYER_HORIZONTAL_SPEED +
-                    (object->v.x - PLAYER_HORIZONTAL_SPEED) * 0.9;
+      if (object->v.x > PLAYER_HORIZONTAL_SPEED + 1.0f) {
+        object->v.x = PLAYER_HORIZONTAL_SPEED +
+                      (object->v.x - PLAYER_HORIZONTAL_SPEED) * 0.9;
+      } else {
+        object->v.x = PLAYER_HORIZONTAL_SPEED;
+      }
     } else {
-      object->v.x = PLAYER_HORIZONTAL_SPEED;
+      object->v.x *= 0.95;
     }
   }
 };
@@ -88,12 +97,7 @@ struct Player : Physics::Object {
     behaviours.push_back(make_unique<Physics::Moving>());
     behaviours.push_back(make_unique<Physics::Gravity>());
 
-    init();
-  }
-
-  void init() {
-    v.y = 0.0f;
-    v.x = PLAYER_HORIZONTAL_SPEED;
+    reset();
   }
 
   void update(float newDistanceFromGround) {
@@ -113,12 +117,21 @@ struct Player : Physics::Object {
     Physics::Object::update();
 
     sprite.update();
+
+    if (pos.y > GetScreenHeight()) kill();
+    if (distanceFromGround < PLAYER_LIFT_FROM_BELOW_TRESHOLD) kill();
   }
 
   void draw(int xOffset) const {
     Vector2 framePos = dxy(pos, -xOffset - (PLAYER_WIDTH >> 1), -PLAYER_HEIGHT);
 
-    if (distanceFromGround > PLAYER_ON_GROUND_TRESHOLD) {
+    if (isDead()) {
+      Texture2D deadTexture = *assets.texture("dead");
+      DrawTextureV(
+          deadTexture,
+          dxy(pos, -xOffset - (deadTexture.width >> 1), -deadTexture.height),
+          WHITE);
+    } else if (distanceFromGround > PLAYER_ON_GROUND_TRESHOLD) {
       DrawTextureV(*assets.texture("jump"), framePos, WHITE);
     } else {
       sprite.draw(framePos);
@@ -129,21 +142,15 @@ struct Player : Physics::Object {
   inline int height() const { return 30; }
 
   void reset() {
-    pos.x = 0;
-    pos.y = 0;
-    v.y = 0;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    v.y = 0.0f;
     v.x = PLAYER_HORIZONTAL_SPEED;
+    dead = false;
   }
 
   Rectangle frame() const {
     return Rectangle{pos.x - (width() >> 1), pos.y - height(), (float)width(),
                      (float)height()};
-  }
-
-  bool isDead() const {
-    if (pos.y > GetScreenHeight()) return true;
-    if (distanceFromGround < PLAYER_LIFT_FROM_BELOW_TRESHOLD) return true;
-
-    return false;
   }
 };

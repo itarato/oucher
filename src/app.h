@@ -55,15 +55,12 @@ struct App {
 
   ~App() {
     assets.free();
-
-    ShowCursor();
     CloseWindow();
   }
 
   void init() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Oucher V0.1 pre-alpha dev build");
     SetTargetFPS(FPS);
-    HideCursor();
 
     assets.preloadTextures("./assets/images");
 
@@ -108,6 +105,7 @@ struct App {
       }
     } else if (state == AppState::Losing) {
       losingStateCountdown.update();
+      update_game();
       if (losingStateCountdown.isComplete()) {
         handle_losing_to_ready();
       }
@@ -127,8 +125,8 @@ struct App {
 
     if (player.pos.x >= currentMap().w - player.width()) handle_win();
 
-    if (player.isDead()) handle_losing();
-    if (currentMap().hasObstacleCollision(player.frame())) handle_losing();
+    if (currentMap().hasObstacleCollision(player.frame())) player.kill();
+    if (state == AppState::Running && player.isDead()) handle_losing();
 
     if (IsKeyPressed(KEY_PAUSE)) {
       state = AppState::Pause;
