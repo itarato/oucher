@@ -17,23 +17,7 @@ struct Map {
   vector<Line> lines{};
 
   vector<Obstacle> obstacles{};
-
-  Map() = default;
-
-  Map(int w, vector<Line> lines) : w(w), lines(lines) {}
-
-  Map(vector<IntVector2> anchors) {
-    IntVector2 current = anchors[0];
-
-    for (int i = 1; i < (int)anchors.size(); i++) {
-      IntVector2 next = anchors[i];
-
-      lines.emplace_back(current, next);
-
-      current = next;
-      w = current.x;
-    }
-  }
+  vector<float> surfaceCache{};
 
   Map(const char* fileName) {
     ifstream file{fileName};
@@ -69,10 +53,15 @@ struct Map {
     }
 
     file.close();
+
+    LOG("Map loaded: %s", fileName);
+
+    surfaceCache.reserve(w);
+    cacheSurfaceYRange(w);
   }
 
   inline float deltaYPointToSurface(Vector2 p) const {
-    return deltaYPointToLineList(p, lines);
+    return surfaceYAtX((int)p.x) - p.y;
   }
 
   void draw_ground(int xOffset) const {
@@ -90,5 +79,33 @@ struct Map {
     }
 
     return false;
+  }
+
+  float surfaceYAtX(int x) const {
+    if (x >= w) return INFINITY;
+
+    return surfaceCache[x];
+  }
+
+ private:
+  int lastCachedSurfaceY{-1};
+
+  void cacheSurfaceYRange(int untilIdx) {
+    if (untilIdx > w) untilIdx = w;
+
+    for (int i = lastCachedSurfaceY + 1; i <= untilIdx; i++) {
+      float y = INFINITY;
+
+      auto it = find_if(lines.begin(), lines.end(),
+                        [&](const auto& line) { return line.matchX(i); });
+
+      if (it != lines.end()) y = it->yAtX((float)i);
+
+      surfaceCache.emplace_back(y);
+
+      LOG("Surface cache: %d -> %d", i, (int)y);
+    }
+
+    lastCachedSurfaceY = untilIdx;
   }
 };

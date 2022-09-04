@@ -43,7 +43,7 @@ struct Line {
                DARKGREEN);
   }
 
-  float delta(Vector2 p) const {
+  float yAtX(float x) const {
     Vector2 left, right;
 
     if (a.x < b.x) {
@@ -53,31 +53,21 @@ struct Line {
       left = b.v2();
       right = a.v2();
     } else {
-      if (p.x == (float)a.x) {
-        return (float)min(a.y, b.y) - p.y;
+      if (x == (float)a.x) {
+        return (float)min(a.y, b.y);
       } else {
         return INFINITY;
       }
     }
 
-    if (p.x < left.x || p.x > right.x) return INFINITY;
+    if (x < left.x || x > right.x) return INFINITY;
 
     float slope = (right.y - left.y) / (right.x - left.x);
     float offsX = left.x;
     float offsY = left.y;
-    float lineY = (slope * (p.x - offsX)) + offsY;
 
-    return lineY - p.y;
+    return (slope * (x - offsX)) + offsY;
   }
+
+  bool matchX(int x) const { return minX() <= x && maxX() >= x; }
 };
-
-float deltaYPointToLineList(Vector2 p, const vector<Line>& lines) {
-  float dy = INFINITY;
-
-  for (auto& line : lines) {
-    float currentDY = line.delta(p);
-    if (dy > currentDY) dy = currentDY;
-  }
-
-  return dy;
-}
