@@ -5,6 +5,7 @@
 
 #include "assets.h"
 #include "defs.h"
+#include "map.h"
 #include "particles.h"
 #include "physics.h"
 #include "raylib.h"
@@ -20,15 +21,17 @@ struct Player : Physics::Object {
 
   vector<Sprinkler> blood{};
 
-  Player() {
+  shared_ptr<Map>* map{nullptr};
+
+  Player(shared_ptr<Map>* map) : map(map) {
     behaviours.push_back(make_unique<Physics::Moving>());
     behaviours.push_back(make_unique<Physics::Gravity>());
 
     reset();
   }
 
-  void update(float newDistanceFromGround) {
-    distanceFromGround = newDistanceFromGround;
+  void update() {
+    distanceFromGround = (*map)->deltaYPointToSurface(pos);
 
     if (distanceFromGround != INFINITY) {
       if (distanceFromGround < 0.0 &&

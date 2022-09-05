@@ -15,13 +15,13 @@
 
 using namespace std;
 
-vector<Map> default_map_file_list(const char* folder) {
+vector<shared_ptr<Map>> default_map_file_list(const char* folder) {
   FilePathList files = LoadDirectoryFiles(folder);
 
-  vector<Map> out{};
+  vector<shared_ptr<Map>> out{};
 
   for (int i = 0; i < (int)files.count; i++) {
-    out.emplace_back(files.paths[i]);
+    out.emplace_back(make_shared<Map>(files.paths[i]));
     LOG("Map file loaded: %s", files.paths[i]);
   }
 
@@ -38,9 +38,9 @@ enum class AppState {
 struct App {
   int stage{0};
 
-  const vector<Map> maps = default_map_file_list("./maps");
+  const vector<shared_ptr<Map>> maps = default_map_file_list("./maps");
 
-  Player player{};
+  Player player;
 
   int offset{0};
 
@@ -51,7 +51,9 @@ struct App {
   Shader shader;
   int groundShaderOffsetLoc{};
 
-  App() = default;
+  shared_ptr<Map> map;
+
+  App() : player(&map) {}
 
   ~App() {
     assets.free();
@@ -72,7 +74,10 @@ struct App {
 
   void restart() {
     stage = 0;
+    map = maps[0];
+
     player.reset();
+
     state = AppState::Ready;
   }
 
@@ -81,7 +86,7 @@ struct App {
       update();
 
       BeginDrawing();
-      ClearBackground(SKYBLUE);
+      ClearBackground(BLACK);
 
       int offset = xOffset();
       SetShaderValue(shader, groundShaderOffsetLoc, &offset,
@@ -97,6 +102,8 @@ struct App {
   }
 
   void update() {
+    if (IsKeyPressed(KEY_R)) restart();
+
     if (state == AppState::Running) {
       update_game();
     } else if (state == AppState::Ready) {
@@ -120,14 +127,12 @@ struct App {
   }
 
   void update_game() {
-    auto distanceFromGround = currentMap().deltaYPointToSurface(player.pos);
-    player.update(distanceFromGround);
+    player.update();
 
-    if (state == AppState::Running &&
-        player.pos.x >= currentMap().w - player.width()) {
+    if (state == AppState::Running && player.pos.x >= map->w - player.width()) {
       handle_win();
     }
-    if (currentMap().hasObstacleCollision(player.frame())) player.kill();
+    if (map->hasObstacleCollision(player.frame())) player.kill();
     if (state == AppState::Running && player.isDead()) handle_losing();
 
     if (IsKeyPressed(KEY_PAUSE)) {
@@ -151,12 +156,13 @@ struct App {
 
   void draw_menu() {
     Text::build(TextFormat("Stage [%d] - Press [Enter]", stage))
+        .withColor(LIGHTGRAY)
         .toCenter()
         .draw();
   }
 
   void draw_game() const {
-    currentMap().draw_not_ground(xOffset());
+    map->draw_not_ground(xOffset());
     player.draw(xOffset());
 
     DrawFPS(4, 4);
@@ -173,11 +179,15 @@ struct App {
     }
   }
 
-  void draw_game_shader_mode() const { currentMap().draw_ground(xOffset()); }
+  void draw_game_shader_mode() const {
+    ClearBackground(SKYBLUE);
+    map->draw_ground(xOffset());
+  }
 
   void handle_win() {
     state = AppState::Ready;
     stage = (stage + 1) % maps.size();
+    map = maps[stage];
 
     player.reset();
   }
@@ -190,16 +200,16 @@ struct App {
   void handle_losing_to_ready() {
     state = AppState::Ready;
     stage = 0;
+    map = maps[0];
+
     player.reset();
   }
 
   int xOffset() const {
-    if (currentMap().w < GetScreenWidth()) return 0;
+    if (map->w < GetScreenWidth()) return 0;
     if (player.pos.x < APP_SCROLL_START_PADDING) return 0;
 
     return min((int)player.pos.x - APP_SCROLL_START_PADDING,
-               currentMap().w - GetScreenWidth());
+               map->w - GetScreenWidth());
   }
-
-  const Map& currentMap() const { return maps.at(stage); }
 };
