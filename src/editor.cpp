@@ -140,9 +140,10 @@ int main(int argc, char** argv) {
     // Obstacle creation.
     if (IsKeyDown(selectedObstacle + KEY_ZERO) && IsMouseButtonPressed(2)) {
       map.obstacles.emplace_back((ObstacleType)selectedObstacle,
-                                 GetMousePosition());
+                                 dx(GetMousePosition(), offset));
     }
 
+    // Obstacle deletion.
     if (IsKeyPressed(KEY_D)) {
       erase_if(map.obstacles, [&](const auto& obstacle) {
         return CheckCollisionPointRec(currentMousePos, obstacle.frame());
@@ -169,7 +170,11 @@ int main(int argc, char** argv) {
 
     // Recorded obstacles;
     for (auto& obstacle : map.obstacles) {
-      obstacle.draw(offset);
+      Color obstacleColor{BROWN};
+      Rectangle obstacleAbsFrame = dx(obstacle.frame(), -offset);
+      if (CheckCollisionPointRec(currentMousePos, obstacleAbsFrame))
+        obstacleColor = RED;
+      DrawRectangleRec(obstacleAbsFrame, obstacleColor);
     }
 
     // Current point cross.
@@ -193,7 +198,7 @@ int main(int argc, char** argv) {
     // Current obstacle.
     if (IsKeyDown(selectedObstacle + KEY_ZERO)) {
       DrawRectangleRec(
-          Rectangle{(float)currentX, (float)currentY,
+          Rectangle{(float)currentX - offset, (float)currentY,
                     (float)obstacleFramePreset[selectedObstacle].x,
                     (float)obstacleFramePreset[selectedObstacle].y},
           MAGENTA);

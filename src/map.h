@@ -8,6 +8,7 @@
 #include "line.h"
 #include "obstacle.h"
 #include "raylib.h"
+#include "trampoline.h"
 #include "util.h"
 
 using namespace std;
