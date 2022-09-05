@@ -9,33 +9,23 @@ uniform float surface_ys[10000];
 
 const float renderHeight=400.;
 
-void main()
-{
-    int mx=int(gl_FragCoord.x+x_offset)/2;
-    int my=int(gl_FragCoord.y)/2;
-    
-    vec4 color;
-    
-    int type=(mx*my)%(my%5+mx%5);
-    
-    if(type==0){
-        color=vec4(.4549,.4235,.3725,1.);
-    }else if(type==1){
-        color=vec4(.4196,.3529,.2392,1.);
-    }else if(type==2){
-        color=vec4(.5333,.4863,.4039,1.);
-    }else{
-        color=vec4(.6314,.5804,.4902,1.);
-    }
-    
+const vec4 color_green=vec4(.1333,.4588,.0353,1.);
+const vec4 color_brown1=vec4(.3686,.2706,.1412,1.);
+const vec4 color_brown2=vec4(.4,.302,.1765,1.);
+
+void main(){
     float surface_y=renderHeight-surface_ys[int(gl_FragCoord.x)+x_offset];
     
     if(surface_y-8.<gl_FragCoord.y){
-        float mul=2.-(surface_y-gl_FragCoord.y)/8.;
-        vec4 green=vec4(.1333,.4588,.0353,1.)*mul;
-        finalColor=green;
+        finalColor=color_green;
     }else{
-        vec4 brown=vec4(.2275,.2,.1529,1.);
-        finalColor=mix(brown,color,smoothstep(surface_y-150.,surface_y-0.,gl_FragCoord.y));
+        int mx=int(gl_FragCoord.x+x_offset)/16;
+        int my=int(gl_FragCoord.y)/16;
+        
+        if((mx+my)%2==0){
+            finalColor=color_brown1;
+        }else{
+            finalColor=color_brown2;
+        }
     }
 }
