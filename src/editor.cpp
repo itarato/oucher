@@ -38,11 +38,29 @@ void writeToFile(Map& map, const char* fileName) {
          << endl;
   }
 
+  int objectLen{0};
+  objectLen += map.obstacles.size();
+  objectLen += map.decorations.size();
+  objectLen += map.trampolines.size();
+
+  file << objectLen << endl;
+
   // Write obstacles.
-  file << map.obstacles.size() << endl;
   for (const auto& obstacle : map.obstacles) {
     file << (int)obstacle.type << ' ' << (int)obstacle.pos.x << ' '
          << (int)obstacle.pos.y << endl;
+  }
+
+  // Write decorations.
+  for (const auto& decoration : map.decorations) {
+    file << (int)decoration.type + STATIC_OBJECT_ID_DECORATION_START << ' '
+         << (int)decoration.pos.x << ' ' << (int)decoration.pos.y << endl;
+  }
+
+  // Write trampolines.
+  for (const auto& trampoline : map.trampolines) {
+    file << STATIC_OBJECT_ID_TRAMPOLINE << ' ' << (int)trampoline.pos.x << ' '
+         << (int)trampoline.pos.y << endl;
   }
 
   file.close();
@@ -81,7 +99,8 @@ int main(int argc, char** argv) {
 
   optional<int> previousMouseX = nullopt;
 
-  int selectedObstacle{0};
+  int selectedObstacle{-1};
+  int selectedDecoration{-1};
 
   while (!WindowShouldClose()) {
     /**************************************************************************
@@ -110,11 +129,11 @@ int main(int argc, char** argv) {
     // Horizontal scrolling.
     if (IsMouseButtonDown(1)) {
       if (!previousMouseX.has_value()) {
-        previousMouseX = GetMouseX() + offset;
+        previousMouseX = currentX;
       }
 
       if (previousMouseX.has_value()) {
-        offset += previousMouseX.value() - (GetMouseX() + offset);
+        offset += previousMouseX.value() - currentX;
         previousMouseX = GetMouseX() + offset;
       }
     } else {
@@ -130,15 +149,22 @@ int main(int argc, char** argv) {
       });
     }
 
-    // Obstacle selection.
+    if (IsKeyPressed(KEY_X)) {
+      selectedDecoration = -1;
+      selectedObstacle = -1;
+    }
+
     int pressedKey = GetKeyPressed();
-    if (pressedKey >= KEY_ZERO &&
+
+    // Obstacle selection.
+    if (IsKeyUp(KEY_LEFT_SHIFT) && pressedKey >= KEY_ZERO &&
         pressedKey < (int)(KEY_ZERO + obstacleFramePreset.size())) {
       selectedObstacle = pressedKey - KEY_ZERO;
+      selectedDecoration = -1;
     }
 
     // Obstacle creation.
-    if (IsKeyDown(selectedObstacle + KEY_ZERO) && IsMouseButtonPressed(2)) {
+    if (selectedObstacle >= 0 && IsMouseButtonPressed(2)) {
       map.obstacles.emplace_back((ObstacleType)selectedObstacle,
                                  dx(GetMousePosition(), offset));
     }
@@ -147,6 +173,38 @@ int main(int argc, char** argv) {
     if (IsKeyPressed(KEY_D)) {
       erase_if(map.obstacles, [&](const auto& obstacle) {
         return CheckCollisionPointRec(currentMousePos, obstacle.frame());
+      });
+    }
+
+    // Decoration selection.
+    if (IsKeyDown(KEY_LEFT_SHIFT) && pressedKey >= KEY_ZERO &&
+        pressedKey < (int)(KEY_ZERO + decorationFramePreset.size())) {
+      selectedDecoration = pressedKey - KEY_ZERO;
+      selectedObstacle = -1;
+    }
+
+    // Decoration creation.
+    if (selectedDecoration >= 0 && IsMouseButtonPressed(2)) {
+      map.decorations.emplace_back((DecorationType)selectedDecoration,
+                                   dx(GetMousePosition(), offset));
+    }
+
+    // Decoration deletion.
+    if (IsKeyPressed(KEY_D)) {
+      erase_if(map.decorations, [&](const auto& decoration) {
+        return CheckCollisionPointRec(currentMousePos, decoration.frame());
+      });
+    }
+
+    // Trampoline creation.
+    if (IsKeyDown(KEY_T) && IsMouseButtonPressed(2)) {
+      map.trampolines.emplace_back(dx(GetMousePosition(), offset));
+    }
+
+    // Trampoline deletion.
+    if (IsKeyDown(KEY_D)) {
+      erase_if(map.trampolines, [&](const auto& trampoline) {
+        return CheckCollisionPointRec(currentMousePos, trampoline.frame());
       });
     }
 
@@ -168,13 +226,31 @@ int main(int argc, char** argv) {
                  lineColor);
     }
 
-    // Recorded obstacles;
+    // Recorded obstacles.
     for (auto& obstacle : map.obstacles) {
       Color obstacleColor{BROWN};
       Rectangle obstacleAbsFrame = dx(obstacle.frame(), -offset);
       if (CheckCollisionPointRec(currentMousePos, obstacleAbsFrame))
         obstacleColor = RED;
       DrawRectangleRec(obstacleAbsFrame, obstacleColor);
+    }
+
+    // Recorded decorations.
+    for (auto& decoration : map.decorations) {
+      Color decorationColor{ORANGE};
+      Rectangle decorationAbsFrame = dx(decoration.frame(), -offset);
+      if (CheckCollisionPointRec(currentMousePos, decorationAbsFrame))
+        decorationColor = RED;
+      DrawRectangleRec(decorationAbsFrame, decorationColor);
+    }
+
+    // Recorded trampolines.
+    for (auto& trampoline : map.trampolines) {
+      Color trampolineColor{ORANGE};
+      Rectangle trampolineAbsFrame = dx(trampoline.frame(), -offset);
+      if (CheckCollisionPointRec(currentMousePos, trampolineAbsFrame))
+        trampolineColor = RED;
+      DrawRectangleRec(trampolineAbsFrame, trampolineColor);
     }
 
     // Current point cross.
@@ -196,12 +272,29 @@ int main(int argc, char** argv) {
     }
 
     // Current obstacle.
-    if (IsKeyDown(selectedObstacle + KEY_ZERO)) {
+    if (selectedObstacle >= 0) {
       DrawRectangleRec(
           Rectangle{(float)currentX - offset, (float)currentY,
                     (float)obstacleFramePreset[selectedObstacle].x,
                     (float)obstacleFramePreset[selectedObstacle].y},
           MAGENTA);
+    }
+
+    // Current decoration.
+    if (selectedDecoration >= 0) {
+      DrawRectangleRec(
+          Rectangle{(float)currentX - offset, (float)currentY,
+                    (float)decorationFramePreset[selectedDecoration].x,
+                    (float)decorationFramePreset[selectedDecoration].y},
+          MAGENTA);
+    }
+
+    // Current trampoline.
+    if (IsKeyDown(KEY_T)) {
+      DrawRectangleRec(
+          Rectangle{(float)currentX - offset, (float)currentY,
+                    (float)TRAMPOLINE_WIDTH, (float)TRAMPOLINE_HEIGHT},
+          DARKPURPLE);
     }
 
     // HUD.

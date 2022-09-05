@@ -5,6 +5,7 @@ in vec2 fragTexCoord;
 out vec4 finalColor;
 
 uniform int x_offset=0;
+uniform float surface_ys[];
 
 const float renderHeight=400.;
 

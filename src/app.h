@@ -113,7 +113,7 @@ struct App {
     } else if (state == AppState::Losing) {
       losingStateCountdown.update();
       update_game();
-      if (losingStateCountdown.isComplete()) {
+      if (losingStateCountdown.isComplete() || IsKeyPressed(KEY_ENTER)) {
         handle_losing_to_ready();
       }
     } else if (state == AppState::Pause) {

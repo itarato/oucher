@@ -13,11 +13,40 @@
 
 using namespace std;
 
+static vector<IntVector2> decorationFramePreset{
+    {100, 100},
+    {80, 160},
+};
+
+enum class DecorationType {
+  T1,
+  T2,
+};
+
+struct Decoration {
+  DecorationType type{DecorationType::T1};
+  Vector2 pos{};
+
+  Decoration(DecorationType type, Vector2 pos) : type(type), pos(pos) {}
+
+  void draw(int xOffset) const {
+    DrawRectangleRec(dx(frame(), -xOffset), ORANGE);
+  }
+
+  Rectangle frame() const {
+    return Rectangle{pos.x, pos.y, (float)decorationFramePreset[(int)type].x,
+                     (float)decorationFramePreset[(int)type].y};
+  }
+};
+
 struct Map {
   int w{};
-  vector<Line> lines{};
 
+  vector<Line> lines{};
   vector<Obstacle> obstacles{};
+  vector<Trampoline> trampolines{};
+  vector<Decoration> decorations{};
+
   vector<float> surfaceCache{};
 
   Map(const char* fileName) {
@@ -42,15 +71,18 @@ struct Map {
       if (x2 > w) w = x2;
     }
 
-    int obstacleLen;
-    file >> obstacleLen;
+    int staticObjectLen;
+    file >> staticObjectLen;
 
-    for (int j = 0; j < obstacleLen; j++) {
-      int oType, oX, oY;
-      file >> oType >> oX >> oY;
+    for (int j = 0; j < staticObjectLen; j++) {
+      int type, x, y;
+      file >> type >> x >> y;
 
-      obstacles.emplace_back((ObstacleType)oType,
-                             Vector2{(float)oX, (float)oY});
+      if (type == STATIC_OBJECT_ID_TRAMPOLINE) {
+        trampolines.emplace_back(Vector2{(float)x, (float)y});
+      } else {
+        obstacles.emplace_back((ObstacleType)type, Vector2{(float)x, (float)y});
+      }
     }
 
     file.close();
@@ -70,8 +102,10 @@ struct Map {
   }
 
   void draw_not_ground(int xOffset) const {
-    for (auto& line : lines) line.draw_line_only(xOffset);
-    for (auto& obstacle : obstacles) obstacle.draw(xOffset);
+    for (const auto& line : lines) line.draw_line_only(xOffset);
+    for (const auto& obstacle : obstacles) obstacle.draw(xOffset);
+    for (const auto& trampoline : trampolines) trampoline.draw(xOffset);
+    for (const auto& decoration : decorations) decoration.draw(xOffset);
   }
 
   bool hasObstacleCollision(Rectangle frame) const {
@@ -103,8 +137,6 @@ struct Map {
       if (it != lines.end()) y = it->yAtX((float)i);
 
       surfaceCache.emplace_back(y);
-
-      LOG("Surface cache: %d -> %d", i, (int)y);
     }
 
     lastCachedSurfaceY = untilIdx;
