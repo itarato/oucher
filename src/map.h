@@ -102,7 +102,7 @@ struct Map {
   }
 
   void draw_not_ground(int xOffset) const {
-    for (const auto& line : lines) line.draw_line_only(xOffset);
+    // for (const auto& line : lines) line.draw_line_only(xOffset);
     for (const auto& obstacle : obstacles) obstacle.draw(xOffset);
     for (const auto& trampoline : trampolines) trampoline.draw(xOffset);
     for (const auto& decoration : decorations) decoration.draw(xOffset);

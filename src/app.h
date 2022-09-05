@@ -94,8 +94,8 @@ struct App {
       float* surfaceYs = map->surfaceCache.data();
       SetShaderValue(shader, groundShaderOffsetLoc, &offset,
                      SHADER_UNIFORM_INT);
-      SetShaderValue(shader, groundShaderSurfaceYsLoc, &surfaceYs,
-                     SHADER_UNIFORM_FLOAT);
+      SetShaderValueV(shader, groundShaderSurfaceYsLoc, surfaceYs,
+                      SHADER_UNIFORM_FLOAT, map->surfaceCache.size());
 
       BeginShaderMode(shader);
       draw_shader_mode();

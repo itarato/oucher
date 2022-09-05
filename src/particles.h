@@ -21,7 +21,7 @@ struct Sprinkler : Physics::Object {
   Sprinkler(Vector2 thePos, shared_ptr<Map>* map) : map(map) {
     pos = thePos;
 
-    radius = rand_range(1, 2);
+    radius = rand_range(1, 3);
     pos.x += rand_range(-15, 15);
     pos.y += rand_range(-2, 3);
     v.x = randf(-5.0f, 5.0f);
@@ -39,5 +39,7 @@ struct Sprinkler : Physics::Object {
     Physics::Object::update();
   }
 
-  void draw() const { DrawCircleV(pos, (float)radius, color); }
+  void draw() const {
+    DrawRectangleV(pos, Vector2{(float)radius, (float)radius}, color);
+  }
 };
