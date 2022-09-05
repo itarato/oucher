@@ -59,6 +59,18 @@ struct Moving : Behaviour {
   }
 };
 
+struct Friction : Behaviour {
+  const float slowDown{0.95f};
+
+  void update(Object* object) {
+    if (fabs(object->v.x) < FRICTION_ZERO_TRESHOLD) {
+      object->v.x = 0.0f;
+    } else {
+      object->v.x *= slowDown;
+    }
+  }
+};
+
 struct Gravity : Behaviour {
   void update(Object* object) {
     if (fabs(object->v.y) < PLAYER_GRAVITY_BACKFALL_TRESHOLD) {
@@ -67,6 +79,23 @@ struct Gravity : Behaviour {
       object->v.y *= PLAYER_GRAVITY_SLOWDOWN;
     } else {
       object->v.y *= PLAYER_GRAVITY_ACCELERATE;
+    }
+  }
+};
+
+struct GroundAwareness : Behaviour {
+  shared_ptr<Map>* map{nullptr};
+
+  GroundAwareness(shared_ptr<Map>* map) : Behaviour(), map(map) {}
+
+  void update(Object* object) {
+    float surfaceY = (*map)->surfaceYAtX(object->pos.x);
+    if (surfaceY < object->pos.y) {
+      object->v.y = 0.0f;
+
+      if (surfaceY > (object->pos.y - GROUND_AWARENESS_LIFT_THRESHOLD)) {
+        object->pos.y = surfaceY;
+      }
     }
   }
 };

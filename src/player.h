@@ -54,7 +54,7 @@ struct Player : Physics::Object {
     if (isDead()) {
       deadRotation.update();
 
-      if (rand_range(0, 2) == 0) blood.emplace_back(pos);
+      blood.emplace_back(dx(pos, -15.0f), map);
       for (auto& bloodCell : blood) bloodCell.update();
     }
   }
