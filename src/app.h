@@ -50,6 +50,7 @@ struct App {
 
   Shader shader;
   int groundShaderOffsetLoc{};
+  int groundShaderSurfaceYsLoc{};
 
   shared_ptr<Map> map;
 
@@ -68,6 +69,7 @@ struct App {
 
     shader = LoadShader(0, "./assets/shaders/ground.fs");
     groundShaderOffsetLoc = GetShaderLocation(shader, "x_offset");
+    groundShaderSurfaceYsLoc = GetShaderLocation(shader, "surface_ys");
 
     restart();
   }
@@ -89,8 +91,11 @@ struct App {
       ClearBackground(BLACK);
 
       int offset = xOffset();
+      float* surfaceYs = map->surfaceCache.data();
       SetShaderValue(shader, groundShaderOffsetLoc, &offset,
                      SHADER_UNIFORM_INT);
+      SetShaderValue(shader, groundShaderSurfaceYsLoc, &surfaceYs,
+                     SHADER_UNIFORM_FLOAT);
 
       BeginShaderMode(shader);
       draw_shader_mode();
