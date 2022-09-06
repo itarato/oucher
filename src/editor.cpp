@@ -254,16 +254,18 @@ int main(int argc, char** argv) {
     }
 
     // Current point cross.
-    DrawLineEx(
-        Vector2{(float)currentGridX - offset,
-                (float)(currentGridY - GRID_SIZE)},
-        Vector2{(float)currentGridX - offset, float(currentGridY + GRID_SIZE)},
-        3, DARKBROWN);
-    DrawLineEx(Vector2{(float)(currentGridX - GRID_SIZE - offset),
-                       (float)(currentGridY)},
-               Vector2{(float)(currentGridX + GRID_SIZE - offset),
-                       (float)(currentGridY)},
-               3, DARKBROWN);
+    if (selectedDecoration < 0 && selectedObstacle < 0 && !IsKeyDown(KEY_T)) {
+      DrawLineEx(Vector2{(float)currentGridX - offset,
+                         (float)(currentGridY - GRID_SIZE)},
+                 Vector2{(float)currentGridX - offset,
+                         float(currentGridY + GRID_SIZE)},
+                 3, DARKBROWN);
+      DrawLineEx(Vector2{(float)(currentGridX - GRID_SIZE - offset),
+                         (float)(currentGridY)},
+                 Vector2{(float)(currentGridX + GRID_SIZE - offset),
+                         (float)(currentGridY)},
+                 3, DARKBROWN);
+    }
 
     // Current line.
     if (lineStart.has_value()) {

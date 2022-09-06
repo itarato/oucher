@@ -128,8 +128,16 @@ struct Map {
   }
 
   bool hasObstacleCollision(Rectangle frame) const {
-    for (auto& obstacle : obstacles) {
+    for (const auto& obstacle : obstacles) {
       if (CheckCollisionRecs(frame, obstacle.frame())) return true;
+    }
+
+    return false;
+  }
+
+  bool hasTrampolineCollision(Vector2 p) const {
+    for (const auto& trampoline : trampolines) {
+      if (CheckCollisionPointRec(p, trampoline.activationFrame())) return true;
     }
 
     return false;

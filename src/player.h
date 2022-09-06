@@ -99,4 +99,14 @@ struct Player : Physics::Object {
     return Rectangle{pos.x - (width() >> 1), pos.y - height(), (float)width(),
                      (float)height()};
   }
+
+  void kill() {
+    if (isDead()) return;
+
+    Physics::Object::kill();
+
+    // One last bump animation.
+    v.y = PLAYER_JUMP_SMALL_V;
+    pos.y += PLAYER_JUMP_SMALL_V;
+  }
 };

@@ -120,7 +120,13 @@ struct App {
     if (state == AppState::Running && player.pos.x >= map->w - player.width()) {
       handle_win();
     }
+
+    if (map->hasTrampolineCollision(player.pos) && player.isGoingDownwards()) {
+      player.v.y = PLAYER_JUMP_HIGH_V;
+      player.v.x = PLAYER_HORIZONTAL_SPEED_MEDIUM;
+    }
     if (map->hasObstacleCollision(player.frame())) player.kill();
+
     if (state == AppState::Running && player.isDead()) handle_losing();
 
     if (IsKeyPressed(KEY_PAUSE)) {

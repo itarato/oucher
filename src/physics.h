@@ -24,9 +24,12 @@ struct Object {
     return fabs(distanceFromGround) < PLAYER_ON_GROUND_TRESHOLD;
   }
 
-  inline void kill() { dead = true; }
+  virtual void kill() { dead = true; }
 
   bool isDead() const { return dead; }
+
+  bool isGoingUpwards() const { return v.y < 0.0; }
+  bool isGoingDownwards() const { return v.y > 0.0; }
 };
 
 struct Behaviour {

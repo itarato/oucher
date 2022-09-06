@@ -20,4 +20,11 @@ struct Trampoline {
   Rectangle frame() const {
     return Rectangle{pos.x, pos.y, TRAMPOLINE_WIDTH, TRAMPOLINE_HEIGHT};
   }
+
+  Rectangle activationFrame() const {
+    return Rectangle{
+        pos.x,
+        pos.y - TRAMPOLINE_DETECTION_HEIGHT - TRAMPOLINE_DETECTION_PADDING,
+        TRAMPOLINE_WIDTH, TRAMPOLINE_DETECTION_HEIGHT};
+  }
 };
