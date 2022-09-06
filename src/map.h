@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+#include "assets.h"
 #include "debug.h"
 #include "line.h"
 #include "obstacle.h"
@@ -14,8 +15,7 @@
 using namespace std;
 
 static vector<IntVector2> decorationFramePreset{
-    {100, 100},
-    {80, 160},
+    {89, 35}, {153, 161}, {57, 28}, {64, 90}, {26, 63},
 };
 
 enum class DecorationType {
@@ -30,7 +30,8 @@ struct Decoration {
   Decoration(DecorationType type, Vector2 pos) : type(type), pos(pos) {}
 
   void draw(int xOffset) const {
-    DrawRectangleRec(dx(frame(), -xOffset), ORANGE);
+    const char* name = TextFormat("decoration_%d", (int)type);
+    DrawTextureV(*assets.texture(name), Vector2{pos.x - xOffset, pos.y}, WHITE);
   }
 
   Rectangle frame() const {
@@ -84,6 +85,10 @@ struct Map {
 
       if (type == STATIC_OBJECT_ID_TRAMPOLINE) {
         trampolines.emplace_back(Vector2{(float)x, (float)y});
+      } else if (type >= STATIC_OBJECT_ID_DECORATION_START) {
+        decorations.emplace_back(
+            (DecorationType)(type - STATIC_OBJECT_ID_DECORATION_START),
+            Vector2{(float)x, (float)y});
       } else {
         obstacles.emplace_back((ObstacleType)type, Vector2{(float)x, (float)y});
       }
@@ -107,11 +112,11 @@ struct Map {
     return surfaceYAtX((int)p.x) - p.y;
   }
 
-  void draw_ground(int xOffset) const {
+  void draw_ground_only(int xOffset) const {
     for (auto& line : lines) line.draw(xOffset);
   }
 
-  void draw_not_ground(int xOffset) const {
+  void draw(int xOffset) const {
     int offset = xOffset;
     const float* surfaceYs = surfaceCache.data();
     SetShaderValue(shader, groundShaderOffsetLoc, &offset, SHADER_UNIFORM_INT);
@@ -119,7 +124,7 @@ struct Map {
                     SHADER_UNIFORM_FLOAT, surfaceCache.size());
 
     BeginShaderMode(shader);
-    draw_ground(xOffset);
+    draw_ground_only(xOffset);
     EndShaderMode();
 
     for (const auto& obstacle : obstacles) obstacle.draw(xOffset);

@@ -69,11 +69,8 @@ struct App {
   }
 
   void restart() {
-    stage = 0;
-    map = maps[0];
-
+    setMap(0);
     player.reset();
-
     state = AppState::Ready;
   }
 
@@ -87,6 +84,11 @@ struct App {
       draw();
       EndDrawing();
     }
+  }
+
+  void setMap(int idx) {
+    stage = idx % maps.size();
+    map = maps[stage];
   }
 
   void update() {
@@ -156,16 +158,15 @@ struct App {
   }
 
   void draw_game() const {
-    map->draw_not_ground(xOffset());
+    map->draw(xOffset());
     player.draw(xOffset());
 
-    DrawFPS(4, 4);
+    // DrawFPS(4, 4);
   }
 
   void handle_win() {
     state = AppState::Ready;
-    stage = (stage + 1) % maps.size();
-    map = maps[stage];
+    setMap(stage + 1);
 
     player.reset();
   }
@@ -177,9 +178,6 @@ struct App {
 
   void handle_losing_to_ready() {
     state = AppState::Ready;
-    stage = 0;
-    map = maps[0];
-
     player.reset();
   }
 

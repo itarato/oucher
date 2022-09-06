@@ -39,7 +39,8 @@ struct Sprinkler : Physics::Object {
     Physics::Object::update();
   }
 
-  void draw() const {
-    DrawRectangleV(pos, Vector2{(float)radius, (float)radius}, color);
+  void draw(int xOffset) const {
+    DrawRectangleV(dx(pos, -xOffset), Vector2{(float)radius, (float)radius},
+                   color);
   }
 };

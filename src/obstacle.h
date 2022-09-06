@@ -2,15 +2,17 @@
 
 #include <vector>
 
+#include "assets.h"
 #include "raylib.h"
 #include "util.h"
 
 using namespace std;
 
 static vector<IntVector2> obstacleFramePreset{
-    {20, 30},
-    {20, 50},
-    {20, 80},
+    {28, 28},
+    {28, 56},
+    {28, 84},
+    {33, 11},
 };
 
 enum class ObstacleType {
@@ -31,6 +33,7 @@ struct Obstacle {
   }
 
   void draw(int xOffset) const {
-    DrawRectangleRec(dx(frame(), -xOffset), BROWN);
+    const char* name = TextFormat("obstacle_%d", (int)type);
+    DrawTextureV(*assets.texture(name), Vector2{pos.x - xOffset, pos.y}, WHITE);
   }
 };

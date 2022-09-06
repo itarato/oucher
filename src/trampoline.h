@@ -1,5 +1,6 @@
 #pragma once
 
+#include "assets.h"
 #include "defs.h"
 #include "raylib.h"
 #include "util.h"
@@ -14,7 +15,8 @@ struct Trampoline {
   void update() {}
 
   void draw(int xOffset) const {
-    DrawRectangleRec(dx(frame(), -xOffset), VIOLET);
+    DrawTextureV(*assets.texture("trampoline"), Vector2{pos.x - xOffset, pos.y},
+                 WHITE);
   }
 
   Rectangle frame() const {
@@ -23,8 +25,9 @@ struct Trampoline {
 
   Rectangle activationFrame() const {
     return Rectangle{
-        pos.x,
+        pos.x - TRAMPOLINE_DETECTION_HPADDING,
         pos.y - TRAMPOLINE_DETECTION_HEIGHT - TRAMPOLINE_DETECTION_PADDING,
-        TRAMPOLINE_WIDTH, TRAMPOLINE_DETECTION_HEIGHT};
+        TRAMPOLINE_WIDTH + (TRAMPOLINE_DETECTION_HPADDING << 1),
+        TRAMPOLINE_DETECTION_HEIGHT};
   }
 };

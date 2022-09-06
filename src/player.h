@@ -71,7 +71,7 @@ struct Player : Physics::Object {
           dxy(pos, -xOffset - (PLAYER_DEAD_WIDTH >> 1), -PLAYER_DEAD_HEIGHT);
       deadSprite.drawRotated(framePos, deadRotation.v);
 
-      for (const auto& bloodCell : blood) bloodCell.draw();
+      for (const auto& bloodCell : blood) bloodCell.draw(xOffset);
     } else if (distanceFromGround > PLAYER_ON_GROUND_TRESHOLD) {
       framePos =
           dxy(pos, -xOffset - (PLAYER_JUMP_WIDTH >> 1), -PLAYER_JUMP_HEIGHT);

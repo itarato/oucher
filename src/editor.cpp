@@ -172,7 +172,8 @@ int main(int argc, char** argv) {
     // Obstacle deletion.
     if (IsKeyPressed(KEY_D)) {
       erase_if(map.obstacles, [&](const auto& obstacle) {
-        return CheckCollisionPointRec(currentMousePos, obstacle.frame());
+        return CheckCollisionPointRec(currentMousePos,
+                                      dx(obstacle.frame(), -offset));
       });
     }
 
@@ -192,7 +193,8 @@ int main(int argc, char** argv) {
     // Decoration deletion.
     if (IsKeyPressed(KEY_D)) {
       erase_if(map.decorations, [&](const auto& decoration) {
-        return CheckCollisionPointRec(currentMousePos, decoration.frame());
+        return CheckCollisionPointRec(currentMousePos,
+                                      dx(decoration.frame(), -offset));
       });
     }
 
@@ -204,7 +206,8 @@ int main(int argc, char** argv) {
     // Trampoline deletion.
     if (IsKeyDown(KEY_D)) {
       erase_if(map.trampolines, [&](const auto& trampoline) {
-        return CheckCollisionPointRec(currentMousePos, trampoline.frame());
+        return CheckCollisionPointRec(currentMousePos,
+                                      dx(trampoline.frame(), -offset));
       });
     }
 
@@ -226,27 +229,27 @@ int main(int argc, char** argv) {
                  lineColor);
     }
 
-    // Recorded obstacles.
-    for (auto& obstacle : map.obstacles) {
-      Color obstacleColor{BROWN};
-      Rectangle obstacleAbsFrame = dx(obstacle.frame(), -offset);
-      if (CheckCollisionPointRec(currentMousePos, obstacleAbsFrame))
-        obstacleColor = RED;
-      DrawRectangleRec(obstacleAbsFrame, obstacleColor);
-    }
-
     // Recorded decorations.
     for (auto& decoration : map.decorations) {
-      Color decorationColor{ORANGE};
+      Color decorationColor{GREEN};
       Rectangle decorationAbsFrame = dx(decoration.frame(), -offset);
       if (CheckCollisionPointRec(currentMousePos, decorationAbsFrame))
         decorationColor = RED;
       DrawRectangleRec(decorationAbsFrame, decorationColor);
     }
 
+    // Recorded obstacles.
+    for (auto& obstacle : map.obstacles) {
+      Color obstacleColor{ORANGE};
+      Rectangle obstacleAbsFrame = dx(obstacle.frame(), -offset);
+      if (CheckCollisionPointRec(currentMousePos, obstacleAbsFrame))
+        obstacleColor = RED;
+      DrawRectangleRec(obstacleAbsFrame, obstacleColor);
+    }
+
     // Recorded trampolines.
     for (auto& trampoline : map.trampolines) {
-      Color trampolineColor{ORANGE};
+      Color trampolineColor{MAGENTA};
       Rectangle trampolineAbsFrame = dx(trampoline.frame(), -offset);
       if (CheckCollisionPointRec(currentMousePos, trampolineAbsFrame))
         trampolineColor = RED;
@@ -270,33 +273,33 @@ int main(int argc, char** argv) {
     // Current line.
     if (lineStart.has_value()) {
       DrawLineEx(dx(lineStart.value().v2(), -offset),
-                 dx(currentCoord.v2(), -offset), 3, DARKBLUE);
+                 dx(currentCoord.v2(), -offset), 3, DARKGRAY);
     }
 
     // Current obstacle.
     if (selectedObstacle >= 0) {
-      DrawRectangleRec(
+      DrawRectangleLinesEx(
           Rectangle{(float)currentX - offset, (float)currentY,
                     (float)obstacleFramePreset[selectedObstacle].x,
                     (float)obstacleFramePreset[selectedObstacle].y},
-          MAGENTA);
+          1.0f, ORANGE);
     }
 
     // Current decoration.
     if (selectedDecoration >= 0) {
-      DrawRectangleRec(
+      DrawRectangleLinesEx(
           Rectangle{(float)currentX - offset, (float)currentY,
                     (float)decorationFramePreset[selectedDecoration].x,
                     (float)decorationFramePreset[selectedDecoration].y},
-          MAGENTA);
+          1.0f, GREEN);
     }
 
     // Current trampoline.
     if (IsKeyDown(KEY_T)) {
-      DrawRectangleRec(
+      DrawRectangleLinesEx(
           Rectangle{(float)currentX - offset, (float)currentY,
                     (float)TRAMPOLINE_WIDTH, (float)TRAMPOLINE_HEIGHT},
-          DARKPURPLE);
+          1.0f, MAGENTA);
     }
 
     // HUD.

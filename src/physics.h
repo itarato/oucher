@@ -44,6 +44,7 @@ struct Moving : Behaviour {
       }
       if (IsKeyPressed(KEY_LEFT) && object->onGround()) {
         object->v.y = PLAYER_JUMP_SMALL_V;
+        object->v.x = PLAYER_HORIZONTAL_SPEED_SLOW;
       }
       if (IsKeyPressed(KEY_RIGHT) && object->onGround()) {
         object->v.y = PLAYER_JUMP_SMALL_V;
@@ -52,7 +53,10 @@ struct Moving : Behaviour {
 
       if (object->v.x > PLAYER_HORIZONTAL_SPEED + 1.0f) {
         object->v.x = PLAYER_HORIZONTAL_SPEED +
-                      (object->v.x - PLAYER_HORIZONTAL_SPEED) * 0.9;
+                      (object->v.x - PLAYER_HORIZONTAL_SPEED) * 0.9f;
+      } else if (object->v.x < PLAYER_HORIZONTAL_SPEED - 1.0f) {
+        object->v.x = PLAYER_HORIZONTAL_SPEED -
+                      (PLAYER_HORIZONTAL_SPEED - object->v.x) * 0.98f;
       } else {
         object->v.x = PLAYER_HORIZONTAL_SPEED;
       }
