@@ -48,10 +48,6 @@ struct App {
 
   Countdown losingStateCountdown{180};
 
-  Shader shader;
-  int groundShaderOffsetLoc{};
-  int groundShaderSurfaceYsLoc{};
-
   shared_ptr<Map> map;
 
   App() : player(&map) {}
@@ -67,9 +63,7 @@ struct App {
 
     assets.preloadTextures("./assets/images");
 
-    shader = LoadShader(0, "./assets/shaders/ground.fs");
-    groundShaderOffsetLoc = GetShaderLocation(shader, "x_offset");
-    groundShaderSurfaceYsLoc = GetShaderLocation(shader, "surface_ys");
+    for (auto& map : maps) map->init();
 
     restart();
   }
@@ -89,17 +83,6 @@ struct App {
 
       BeginDrawing();
       ClearBackground(BLACK);
-
-      int offset = xOffset();
-      float* surfaceYs = map->surfaceCache.data();
-      SetShaderValue(shader, groundShaderOffsetLoc, &offset,
-                     SHADER_UNIFORM_INT);
-      SetShaderValueV(shader, groundShaderSurfaceYsLoc, surfaceYs,
-                      SHADER_UNIFORM_FLOAT, map->surfaceCache.size());
-
-      BeginShaderMode(shader);
-      draw_shader_mode();
-      EndShaderMode();
 
       draw();
       EndDrawing();
@@ -171,22 +154,6 @@ struct App {
     player.draw(xOffset());
 
     DrawFPS(4, 4);
-  }
-
-  void draw_shader_mode() const {
-    if (state == AppState::Running) {
-      draw_game_shader_mode();
-    } else if (state == AppState::Ready) {
-    } else if (state == AppState::Losing) {
-      draw_game_shader_mode();
-    } else if (state == AppState::Pause) {
-      draw_game_shader_mode();
-    }
-  }
-
-  void draw_game_shader_mode() const {
-    ClearBackground(SKYBLUE);
-    map->draw_ground(xOffset());
   }
 
   void handle_win() {

@@ -22,7 +22,7 @@ struct Sprinkler : Physics::Object {
     pos = thePos;
 
     radius = rand_range(1, 3);
-    pos.x += rand_range(-15, 15);
+    pos.x += rand_range(-5, 5);
     pos.y += rand_range(-2, 3);
     v.x = randf(-5.0f, 5.0f);
     v.y = randf(-8.0f, 0.0f);

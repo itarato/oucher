@@ -16,7 +16,9 @@ using namespace std;
 
 struct Player : Physics::Object {
   vector<unique_ptr<Physics::Behaviour>> behaviours;
-  Sprite sprite{{"run_0", "run_1", "run_2", "run_3", "run_4", "run_5"}, 2};
+  Sprite runSprite{{"run_0", "run_1", "run_2", "run_3", "run_4", "run_5"}, 3};
+  Sprite jumpSprite{{"jump_0", "jump_1", "jump_2", "jump_3"}, 2};
+  Sprite deadSprite{{"dead_0", "dead_1"}, 8};
   Interpolator deadRotation{0.0f, 360.0f, 20.0f};
 
   vector<Sprinkler> blood{};
@@ -46,7 +48,9 @@ struct Player : Physics::Object {
     }
     Physics::Object::update();
 
-    sprite.update();
+    runSprite.update();
+    jumpSprite.update();
+    deadSprite.update();
 
     if (pos.y > GetScreenHeight()) kill();
     if (distanceFromGround < PLAYER_LIFT_FROM_BELOW_TRESHOLD) kill();
@@ -54,37 +58,32 @@ struct Player : Physics::Object {
     if (isDead()) {
       deadRotation.update();
 
-      blood.emplace_back(dx(pos, -15.0f), map);
+      blood.emplace_back(pos, map);
       for (auto& bloodCell : blood) bloodCell.update();
     }
   }
 
   void draw(int xOffset) const {
-    Vector2 framePos = dxy(pos, -xOffset - (PLAYER_WIDTH >> 1), -PLAYER_HEIGHT);
+    Vector2 framePos;
 
     if (isDead()) {
-      Texture2D deadTexture = *assets.texture("dead");
-      DrawTexturePro(
-          deadTexture,
-          Rectangle{0.0f, 0.0f, (float)deadTexture.width,
-                    (float)deadTexture.height},
-          Rectangle{pos.x - xOffset - (deadTexture.width >> 1),
-                    pos.y - (deadTexture.height >> 1), (float)deadTexture.width,
-                    (float)deadTexture.height},
-          Vector2{(float)(deadTexture.width >> 1),
-                  (float)(deadTexture.height >> 1)},
-          deadRotation.v, WHITE);
+      Vector2 framePos =
+          dxy(pos, -xOffset - (PLAYER_DEAD_WIDTH >> 1), -PLAYER_DEAD_HEIGHT);
+      deadSprite.drawRotated(framePos, deadRotation.v);
 
       for (const auto& bloodCell : blood) bloodCell.draw();
     } else if (distanceFromGround > PLAYER_ON_GROUND_TRESHOLD) {
-      DrawTextureV(*assets.texture("jump"), framePos, WHITE);
+      framePos =
+          dxy(pos, -xOffset - (PLAYER_JUMP_WIDTH >> 1), -PLAYER_JUMP_HEIGHT);
+      jumpSprite.draw(framePos);
     } else {
-      sprite.draw(framePos);
+      framePos = dxy(pos, -xOffset - (PLAYER_WIDTH >> 1), -PLAYER_HEIGHT);
+      runSprite.draw(framePos);
     }
   }
 
-  inline int width() const { return 20; }
-  inline int height() const { return 30; }
+  inline int width() const { return PLAYER_WIDTH; }
+  inline int height() const { return PLAYER_HEIGHT; }
 
   void reset() {
     pos.x = 0.0f;

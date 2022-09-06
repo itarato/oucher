@@ -49,6 +49,10 @@ struct Map {
 
   vector<float> surfaceCache{};
 
+  Shader shader;
+  int groundShaderOffsetLoc{};
+  int groundShaderSurfaceYsLoc{};
+
   Map(const char* fileName) {
     ifstream file{fileName};
 
@@ -93,6 +97,12 @@ struct Map {
     cacheSurfaceYRange(w);
   }
 
+  void init() {
+    shader = LoadShader(0, "./assets/shaders/ground.fs");
+    groundShaderOffsetLoc = GetShaderLocation(shader, "x_offset");
+    groundShaderSurfaceYsLoc = GetShaderLocation(shader, "surface_ys");
+  }
+
   inline float deltaYPointToSurface(Vector2 p) const {
     return surfaceYAtX((int)p.x) - p.y;
   }
@@ -102,7 +112,16 @@ struct Map {
   }
 
   void draw_not_ground(int xOffset) const {
-    // for (const auto& line : lines) line.draw_line_only(xOffset);
+    int offset = xOffset;
+    const float* surfaceYs = surfaceCache.data();
+    SetShaderValue(shader, groundShaderOffsetLoc, &offset, SHADER_UNIFORM_INT);
+    SetShaderValueV(shader, groundShaderSurfaceYsLoc, surfaceYs,
+                    SHADER_UNIFORM_FLOAT, surfaceCache.size());
+
+    BeginShaderMode(shader);
+    draw_ground(xOffset);
+    EndShaderMode();
+
     for (const auto& obstacle : obstacles) obstacle.draw(xOffset);
     for (const auto& trampoline : trampolines) trampoline.draw(xOffset);
     for (const auto& decoration : decorations) decoration.draw(xOffset);

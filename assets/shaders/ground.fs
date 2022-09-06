@@ -12,15 +12,16 @@ const float renderHeight=400.;
 const vec4 color_green=vec4(.1333,.4588,.0353,1.);
 const vec4 color_brown1=vec4(.3686,.2706,.1412,1.);
 const vec4 color_brown2=vec4(.4,.302,.1765,1.);
+const float grass_height=8.;
 
 void main(){
     float surface_y=renderHeight-surface_ys[int(gl_FragCoord.x)+x_offset];
     
-    if(surface_y-8.<gl_FragCoord.y){
+    if(surface_y-grass_height<gl_FragCoord.y){
         finalColor=color_green;
     }else{
         int mx=int(gl_FragCoord.x+x_offset)/16;
-        int my=int(gl_FragCoord.y)/16;
+        int my=int(surface_y-grass_height-gl_FragCoord.y)/16;
         
         if((mx+my)%2==0){
             finalColor=color_brown1;
