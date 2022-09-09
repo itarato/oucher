@@ -70,6 +70,10 @@ struct App {
 
   void restart() {
     setMap(0);
+    restart_same_level();
+  }
+
+  void restart_same_level() {
     player.reset();
     state = AppState::Ready;
   }
@@ -93,6 +97,7 @@ struct App {
 
   void update() {
     if (IsKeyPressed(KEY_R)) restart();
+    if (IsKeyPressed(KEY_L)) restart_same_level();
 
     if (state == AppState::Running) {
       update_game();
@@ -127,7 +132,10 @@ struct App {
       player.v.y = PLAYER_JUMP_HIGH_V;
       player.v.x = PLAYER_HORIZONTAL_SPEED_MEDIUM;
     }
-    if (map->hasObstacleCollision(player.frame())) player.kill();
+    if (map->hasObstacleCollision(player.frame())) {
+      LOG("Player died: collided with obstacle.");
+      player.kill();
+    }
 
     if (state == AppState::Running && player.isDead()) handle_losing();
 

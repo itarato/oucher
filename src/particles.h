@@ -16,9 +16,7 @@ struct Sprinkler : Physics::Object {
 
   int radius{};
 
-  shared_ptr<Map>* map{nullptr};
-
-  Sprinkler(Vector2 thePos, shared_ptr<Map>* map) : map(map) {
+  Sprinkler(Vector2 thePos, shared_ptr<Map>* map) : Physics::Object(map) {
     pos = thePos;
 
     radius = rand_range(1, 3);
@@ -28,15 +26,14 @@ struct Sprinkler : Physics::Object {
     v.y = randf(-8.0f, 0.0f);
 
     behaviours.emplace_back(make_unique<Physics::Gravity>());
+    behaviours.emplace_back(make_unique<Physics::BasicMoving>());
     behaviours.emplace_back(make_unique<Physics::Friction>());
-    behaviours.emplace_back(make_unique<Physics::GroundAwareness>(map));
+    behaviours.emplace_back(make_unique<Physics::GroundAwareness>());
   }
 
   void update() {
     if (pos.y > GetScreenHeight()) return;
-
     for (auto& behaviour : behaviours) behaviour->update(this);
-    Physics::Object::update();
   }
 
   void draw(int xOffset) const {

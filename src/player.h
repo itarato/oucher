@@ -23,37 +23,35 @@ struct Player : Physics::Object {
 
   vector<Sprinkler> blood{};
 
-  shared_ptr<Map>* map{nullptr};
-
-  Player(shared_ptr<Map>* map) : map(map) {
-    behaviours.push_back(make_unique<Physics::Moving>());
+  Player(shared_ptr<Map>* map) : Physics::Object(map) {
+    behaviours.push_back(make_unique<Physics::Jumping>());
+    behaviours.push_back(make_unique<Physics::ForwardMoving>());
     behaviours.push_back(make_unique<Physics::Gravity>());
+    behaviours.push_back(make_unique<Physics::GroundAwareness>());
 
     reset();
   }
 
   void update() {
-    distanceFromGround = (*map)->deltaYPointToSurface(pos);
-
-    if (distanceFromGround != INFINITY) {
-      if (distanceFromGround < 0.0 &&
-          distanceFromGround > PLAYER_LIFT_FROM_BELOW_TRESHOLD) {
-        pos.y += distanceFromGround;
-        v.y = 0.0f;
-      }
-    }
-
     for (auto& behaviour : behaviours) {
       behaviour->update(this);
     }
-    Physics::Object::update();
 
     runSprite.update();
     jumpSprite.update();
     deadSprite.update();
 
-    if (pos.y > GetScreenHeight()) kill();
-    if (distanceFromGround < PLAYER_LIFT_FROM_BELOW_TRESHOLD) kill();
+    if (!isDead() && pos.y > GetScreenHeight()) {
+      LOG("Played died: under screen");
+      debug();
+      kill();
+    }
+
+    if (!isDead() && unsavableBelowGround()) {
+      LOG("Player died: below ground");
+      debug();
+      kill();
+    }
 
     if (isDead()) {
       deadRotation.update();
@@ -72,7 +70,7 @@ struct Player : Physics::Object {
       deadSprite.drawRotated(framePos, deadRotation.v);
 
       for (const auto& bloodCell : blood) bloodCell.draw(xOffset);
-    } else if (distanceFromGround > PLAYER_ON_GROUND_TRESHOLD) {
+    } else if (inAir()) {
       framePos =
           dxy(pos, -xOffset - (PLAYER_JUMP_WIDTH >> 1), -PLAYER_JUMP_HEIGHT);
       jumpSprite.draw(framePos);

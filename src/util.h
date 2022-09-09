@@ -28,6 +28,10 @@ inline Rectangle dx(Rectangle r, float offset) {
   return Rectangle{r.x + offset, r.y, r.width, r.height};
 }
 
+inline constexpr bool between(float v, float lhs, float rhs) {
+  return lhs <= v && v <= rhs;
+}
+
 struct Countdown {
   const int n;
   int counter{};
