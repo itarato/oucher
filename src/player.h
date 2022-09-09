@@ -94,8 +94,15 @@ struct Player : Physics::Object {
   }
 
   Rectangle frame() const {
-    return Rectangle{pos.x - (width() >> 1), pos.y - height(), (float)width(),
-                     (float)height()};
+    if (inAir()) {
+      Rectangle referenceFrame = jumpSprite.referenceFrame();
+      return dxy(referenceFrame, pos.x - (referenceFrame.width / 2.0f),
+                 pos.y - referenceFrame.height);
+    } else {
+      Rectangle referenceFrame = runSprite.referenceFrame();
+      return dxy(referenceFrame, pos.x - (referenceFrame.width / 2.0f),
+                 pos.y - referenceFrame.height);
+    }
   }
 
   void kill() {

@@ -124,7 +124,7 @@ struct App {
   void update_game() {
     player.update();
 
-    if (state == AppState::Running && player.pos.x >= map->w - player.width()) {
+    if (state == AppState::Running && player.pos.x >= map->w) {
       handle_win();
     }
 
@@ -132,7 +132,7 @@ struct App {
       player.v.y = PLAYER_JUMP_HIGH_V;
       player.v.x = PLAYER_HORIZONTAL_SPEED_MEDIUM;
     }
-    if (map->hasObstacleCollision(player.frame())) {
+    if (!player.isDead() && map->hasObstacleCollision(player.frame())) {
       LOG("Player died: collided with obstacle.");
       player.kill();
     }

@@ -86,7 +86,7 @@ struct ForwardMoving : Behaviour {
         object->v.x = PLAYER_HORIZONTAL_SPEED;
       }
     } else {
-      object->v.x *= 0.95;
+      if (object->onGround()) object->v.x *= 0.95;
     }
 
     object->pos.y += object->v.y;

@@ -28,6 +28,10 @@ inline Rectangle dx(Rectangle r, float offset) {
   return Rectangle{r.x + offset, r.y, r.width, r.height};
 }
 
+inline Rectangle dxy(Rectangle r, float xOffset, float yOffset) {
+  return Rectangle{r.x + xOffset, r.y + yOffset, r.width, r.height};
+}
+
 inline constexpr bool between(float v, float lhs, float rhs) {
   return lhs <= v && v <= rhs;
 }
